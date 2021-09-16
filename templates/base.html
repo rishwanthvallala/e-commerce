@@ -1,0 +1,60 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, shrink-to-fit=9">
+    <title> WOWY | {% block title %} E-commerce {% endblock %} </title>
+
+    <!-- Stylesheets -->
+
+    <link href="{% static 'frontend/css/unicons.css' %}" rel="stylesheet">
+    <link href="{% static 'frontend/css/style.css' %}" rel="stylesheet">
+    <link href="{% static 'frontend/css/responsive.css' %}" rel="stylesheet">
+    <link href="{% static 'frontend/css/night-mode.css' %}" rel="stylesheet">
+    <link href="{% static 'frontend/css/step-wizard.css' %}" rel="stylesheet">
+
+    <!-- Vendor Stylesheets -->
+    <link href="{% static 'frontend/css/all.min.css' %}" rel="stylesheet">
+    <link href="{% static 'frontend/css/owl.carousel.css' %}" rel="stylesheet">
+    <link href="{% static 'frontend/css/owl.theme.default.min.css' %}" rel="stylesheet">
+    <link href="{% static 'frontend/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'frontend/css/semantic.min.css' %}" rel="stylesheet">
+
+</head>
+
+<body>
+<!-- start per-loader -->
+<div class="loader-container">
+    <div class="loader-ripple">
+        <div></div>
+        <div></div>
+    </div>
+</div>
+<!-- end per-loader -->
+
+{% include 'includes/header.html' %}
+
+{% block content %}{% endblock %}
+
+{% include 'includes/footer.html' %}
+
+
+<!-- Javascript -->
+<script src="{% static 'frontend/js/jquery-3.3.1.min.js' %}"></script>
+<script src="{% static 'frontend/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'frontend/js/owl.carousel.js' %}"></script>
+<script src="{% static 'frontend/js/semantic.min.js' %}"></script>
+<script src="{% static 'frontend/js/jquery.countdown.min.js' %}"></script>
+<script src="{% static 'frontend/js/product.thumbnail.slider.js' %}"></script>
+<script src="{% static 'frontend/js/offset_overlay.js' %}"></script>
+<script src="{% static 'frontend/js/night-mode.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+<script src="{% static 'frontend/js/custom.js' %}"></script>
+<script src="{% static 'frontend/js/frontend.js' %}"></script>
+</body>
+</html>
