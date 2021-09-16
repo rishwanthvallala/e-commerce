@@ -11,5 +11,9 @@ def image_directory_path(instance, filename):
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=250, verbose_name=_("Category name"))
+    name = models.CharField(max_length=250, verbose_name=_("Name"))
+    slug = models.SlugField(unique=True, verbose_name=_("Slug"))
     image = models.ImageField(upload_to=image_directory_path, verbose_name=_("Image"))
+
+    def __str__(self):
+        return self.name
