@@ -1,86 +1,86 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
-    <!-- Categories Start -->
-    <div class="section145">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="main-title-tt">
-                        <div class="main-title-left">
-                            <span> Shop By </span>
-                            <h2>Categories</h2>
-                        </div>
-                    </div>
-                </div>
-                {% if categories.count > 0 %}
+    <div class="wrapper">
+        <!-- Categories Start -->
+        <div class="section145">
+            <div class="container">
+                <div class="row">
                     <div class="col-md-12">
-                        <div class="owl-carousel cate-slider owl-theme">
-                            {% for category in categories %}
-                                <div class="item">
-                                    <a href="" class="category-item">
-                                        <div class="cate-img">
-                                            <img src="{{ category.image.url }}" alt="">
-                                        </div>
-                                        <h4> {{ category.name }} </h4>
-                                    </a>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                {% else %}
-                    <div class="col-lg-12 col-md-12">
-                        <div class="how-order-steps">
-                            <div class="how-order-icon">
-                                <i class="uil uil-apps"></i>
+                        <div class="main-title-tt">
+                            <div class="main-title-left">
+                                <span> Shop By </span>
+                                <h2>Categories</h2>
                             </div>
-                            <h4> No Category Available </h4>
                         </div>
                     </div>
-                {% endif %}
+                    {% if categories.count > 0 %}
+                        <div class="col-md-12">
+                            <div class="owl-carousel cate-slider owl-theme">
+                                {% for category in categories %}
+                                    <div class="item">
+                                        <a href="" class="category-item">
+                                            <div class="cate-img">
+                                                <img src="{{ category.image.url }}" alt="">
+                                            </div>
+                                            <h4> {{ category.name }} </h4>
+                                        </a>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="col-lg-12 col-md-12">
+                            <div class="how-order-steps">
+                                <div class="how-order-icon">
+                                    <i class="uil uil-apps"></i>
+                                </div>
+                                <h4> No Category Available </h4>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
-    </div>
-    <!-- Categories End -->
+        <!-- Categories End -->
 
-    <!-- New Products Start -->
-    <div class="section145">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="main-title-tt">
-                        <div class="main-title-left">
-                            <span>For You</span>
-                            <h2>Added New Products</h2>
-                        </div>
-                        <a href="/all-products" class="see-more-btn">See All</a>
-                    </div>
-                </div>
-                {% if products.count > 1 %}
-
+        <!-- New Products Start -->
+        <div class="section145">
+            <div class="container">
+                <div class="row">
                     <div class="col-md-12">
-                        <div class="owl-carousel featured-slider owl-theme">
-                            {% for product in products %}
-                                <div class="item">
-                                    {% include 'includes/product.html' %}
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                {% else %}
-                    <div class="col-lg-12 col-md-12">
-                        <div class="how-order-steps">
-                            <div class="how-order-icon">
-                                <i class="uil uil-shopping-basket"></i>
+                        <div class="main-title-tt">
+                            <div class="main-title-left">
+                                <span>For You</span>
+                                <h2>Added New Products</h2>
                             </div>
-                            <h4> No Product Available </h4>
+                            <a href="/all-products" class="see-more-btn">See All</a>
                         </div>
                     </div>
-                {% endif %}
+                    {% if products.count > 1 %}
+
+                        <div class="col-md-12">
+                            <div class="owl-carousel featured-slider owl-theme">
+                                {% for product in products %}
+                                    <div class="item">
+                                        {% include 'includes/product.html' %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="col-lg-12 col-md-12">
+                            <div class="how-order-steps">
+                                <div class="how-order-icon">
+                                    <i class="uil uil-shopping-basket"></i>
+                                </div>
+                                <h4> No Product Available </h4>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
+        <!-- New Products End -->
     </div>
-    <!-- New Products End -->
-
 {% endblock %}
