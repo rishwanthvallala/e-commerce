@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from django.contrib.auth.views import LoginView
-from django.views.generic import CreateView
+from django.contrib.auth import login
+from django.views.generic import FormView, CreateView
 from django.urls import reverse_lazy
 from .forms import UserLoginForm, UserRegistrationForm
 from django.contrib.auth import get_user_model
@@ -8,11 +8,20 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
-class UserLoginView(LoginView):
+class UserLoginView(FormView):
     template_name = "users/auth/login.html"
     form_class = UserLoginForm
-    redirect_authenticated_user = True
     success_url = reverse_lazy("core:home")
+
+    def form_valid(self, form):
+        user = form.get_user()
+        if user is not None:
+            login(self.request, user)
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        # Pass the invalid form directly to maintain error messages
+        return self.render_to_response(self.get_context_data(form=form))
 
 
 class UserSignupView(CreateView):
@@ -22,7 +31,6 @@ class UserSignupView(CreateView):
 
     def form_invalid(self, form):
         # This will return the form with errors to the template
-        print("Form errors:", form.errors)
         return self.render_to_response(self.get_context_data(form=form))
 
     def form_valid(self, form):

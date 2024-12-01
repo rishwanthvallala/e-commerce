@@ -1,12 +1,13 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import get_user_model, authenticate
+from django.core.exceptions import ValidationError
 
 User = get_user_model()
 
 
-class UserLoginForm(AuthenticationForm):
-    username = forms.EmailField(
+class UserLoginForm(forms.Form):
+    email = forms.EmailField(
         widget=forms.EmailInput(
             attrs={"class": "form-control", "placeholder": "Email address"}
         )
@@ -16,6 +17,22 @@ class UserLoginForm(AuthenticationForm):
             attrs={"class": "form-control", "placeholder": "Password"}
         )
     )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        email = cleaned_data.get('email')
+        password = cleaned_data.get('password')
+
+        if email and password:
+            user = authenticate(username=email, password=password)
+            if user is None:
+                raise ValidationError("Invalid email or password.")
+            self.user = user  # Store the user for get_user method
+            
+        return cleaned_data
+
+    def get_user(self):
+        return getattr(self, 'user', None)
 
 
 class UserRegistrationForm(UserCreationForm):

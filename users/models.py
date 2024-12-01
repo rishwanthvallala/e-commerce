@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+from users.manager import CustomUserManager
+
 class User(AbstractUser):
     username = None
     first_name = None
@@ -9,8 +11,10 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=20, blank=False, null=False)
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['name', 'phone']
-    
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["name", "phone"]
+
+    objects = CustomUserManager()
+
     def __str__(self):
         return f"{self.name} - {self.email} - {self.phone}"
