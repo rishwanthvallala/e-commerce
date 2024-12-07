@@ -23,7 +23,6 @@ class Product(TimeStampedModel):
 
     name = models.CharField(max_length=255, verbose_name=_("Product name"))
     description = models.TextField(help_text=_("Main product description"))
-    image = models.ImageField(upload_to=product_image_directory_path)
 
     # Price fields using DecimalField
     original_price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -60,3 +59,31 @@ class Product(TimeStampedModel):
             ) * 100
             return round(discount, 2)
         return 0
+
+    @property
+    def primary_image(self):
+        """Returns the primary image or the first image if no primary is set"""
+        return (
+            self.images.filter(is_primary=True).first() or 
+            self.images.first()
+        )
+
+
+class ProductImage(TimeStampedModel):
+    product = models.ForeignKey(
+        Product, 
+        on_delete=models.CASCADE,
+        related_name='images'
+    )
+    image = models.ImageField(
+        upload_to=product_image_directory_path,
+        verbose_name=_("Product Image")
+    )
+    is_primary = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = _("Product Image")
+        verbose_name_plural = _("Product Images")
+
+    def __str__(self):
+        return f"Image for {self.product.name}"
