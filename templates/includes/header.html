@@ -62,10 +62,11 @@
                                 class="noti_count1">  </span>
                         </a>
                     </li>
+                    {% if user.is_authenticated %}
                     <li class="ui dropdown">
                         <a href="#" class="opts_account">
                             <img src="" alt="">
-                            <span class="user__name"> user </span>
+                            <span class="user__name">{{ user.name }}</span>
                             <i class="uil uil-angle-down"></i>
                         </a>
                         <div class="menu dropdown_account">
@@ -96,6 +97,7 @@
                             </form>
                         </div>
                     </li>
+                    {% else %}
                     <li>
                         <a href="{% url 'users:login' %}" class="offer-link"><i class="uil uil-sign-out-alt"></i>
                             Sign In </a>
@@ -104,6 +106,7 @@
                         <a href="{% url 'users:signup' %}" class="offer-link"><i class="uil uil-user-plus"></i>
                             Sign Up </a>
                     </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
