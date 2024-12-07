@@ -14,6 +14,10 @@ class Category(models.Model):
     name = models.CharField(max_length=250, verbose_name=_("Name"))
     slug = models.SlugField(unique=True, verbose_name=_("Slug"))
     image = models.ImageField(upload_to=image_directory_path, verbose_name=_("Image"))
+    
+    class Meta:
+        verbose_name = _("Category")
+        verbose_name_plural = _("Categories")
 
     def __str__(self):
         return self.name
