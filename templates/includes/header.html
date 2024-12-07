@@ -47,12 +47,14 @@
                             34343434</a>
                     </li>
                     <li>
-                        <a href="{" class="offer-link"><i class="uil uil-gift"></i> Offers
+                        <a href="{% url 'users:login' %}" class="offer-link"><i class="uil uil-gift"></i> Offers
                         </a>
                     </li>
                     <li>
-                        <a href="" class="offer-link"><i class="uil uil-question-circle"></i>
-                            Help </a>
+                        <a href="" class="offer-link">
+                            <i class="uil uil-question-circle"></i>
+                            Help
+                        </a>
                     </li>
                     <li>
                         <a href="" class="option_links" title="Wishlist">
@@ -95,11 +97,11 @@
                         </div>
                     </li>
                     <li>
-                        <a href="" class="offer-link"><i class="uil uil-sign-out-alt"></i>
+                        <a href="{% url 'users:login' %}" class="offer-link"><i class="uil uil-sign-out-alt"></i>
                             Sign In </a>
                     </li>
                     <li>
-                        <a href="" class="offer-link"><i class="uil uil-user-plus"></i>
+                        <a href="{% url 'users:signup' %}" class="offer-link"><i class="uil uil-user-plus"></i>
                             Sign Up </a>
                     </li>
                 </ul>
@@ -139,14 +141,16 @@
                 </div>
             </nav>
             <div class="catey__icon">
-                <a href="#" class="cate__btn" data-toggle="modal" data-target="#category_model" title="Categories"><i
-                        class="uil uil-apps"></i></a>
+                <a href="#" class="cate__btn" data-toggle="modal" data-target="#category_model" title="Categories">
+                    <i class="uil uil-apps"></i>
+                </a>
             </div>
             <div class="header_cart order-1">
-                <a href="#" class="cart__btn hover-btn pull-bs-canvas-left" title="Cart"><i
-                        class="uil uil-shopping-cart-alt"></i><span>Cart</span>
+                <a href="#" class="cart__btn hover-btn pull-bs-canvas-left" title="Cart">
+                    <i class="uil uil-shopping-cart-alt"></i><span>Cart</span>
                     <ins class="cart-item-count">0</ins>
-                    <i class="uil uil-angle-down"></i></a>
+                    <i class="uil uil-angle-down"></i>
+                </a>
             </div>
         </div>
     </div>
