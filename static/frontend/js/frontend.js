@@ -6,7 +6,7 @@ var $document = $(document);
 $(document).ready(function() {
 
   /* ======= Preloader ======= */
-  $('.loader-container').delay('500').fadeOut(2000);
+  $('.loader-container').delay('500').fadeOut(1000);
 
     $(window).keydown(function(event){
         if(event.keyCode == 13) {
