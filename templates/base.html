@@ -24,6 +24,8 @@
     <link href="{% static 'frontend/css/bootstrap.min.css' %}" rel="stylesheet">
     <link href="{% static 'frontend/css/semantic.min.css' %}" rel="stylesheet">
 
+    {% block style %}{% endblock %}
+
 </head>
 
 <body>
@@ -56,5 +58,8 @@
 
 <script src="{% static 'frontend/js/custom.js' %}"></script>
 <script src="{% static 'frontend/js/frontend.js' %}"></script>
+
+{% block script %}{% endblock %}
+
 </body>
 </html>

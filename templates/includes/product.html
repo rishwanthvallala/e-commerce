@@ -1,5 +1,5 @@
 <div class="product-item">
-    <a href="" class="product-img">
+    <a href="{% url 'products:detail' product.slug %}" class="product-img">
         {% if product.primary_image %}
             <img src="{{ product.primary_image.image.url }}" alt="{{ product.name }}">
         {% else %}
