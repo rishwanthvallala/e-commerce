@@ -1,29 +1,33 @@
 <div class="product-item">
     <a href="" class="product-img">
-        <img src="" alt="">
+        <img src="{{ product.primary_image.image.url }}" alt="{{ product.name }}">
         <div class="product-absolute-options">
-            <span class="offer-badge-1">{{$item['off']}}% {{__('off')}}</span>
-            <span class="like-icon like-{{$item['id']}} {{ $item['isWishlist'] == 1? 'liked':'' }}" data-id="{{$item['id']}}" title="wishlist"></span>
+            {% if product.discount_percentage > 0 %}
+                <span class="offer-badge-1">{{ product.discount_percentage }}% off</span>
+            {% endif %}
+            <span class="like-icon" title="wishlist"></span>
         </div>
     </a>
     <div class="product-text-dt">
-        @if ($item['stock'] <= 0)
-            <p> {{__('Not Available')}} <span> {{__('(Out Of Stock)')}} </span></p>
-        @else
-            <p> {{__('Available')}} <span> {{__('(In Stock)')}} </span></p>
-        @endif
-        <h4> {{$item['name']}} </h4>
+        {% if product.stock <= 0 %}
+            <p>Not Available <span>(Out Of Stock)</span></p>
+        {% else %}
+            <p>Available <span>(In Stock)</span></p>
+        {% endif %}
+        <h4>{{ product.name }}</h4>
         <div class="product-price">
-            {{$data['currency']}}<span class="sell_price">{{$item['sell_price']}}</span>
-            <span class="line-through">{{$data['currency']}}<span class="fake_price">{{$item['fake_price']}}</span></span>
+            ৳<span class="sell_price">{{ product.selling_price }}</span>
+            <span class="line-through">৳{{ product.original_price }}</span>
         </div>
         <div class="qty-cart">
             <div class="quantity buttons_added">
                 <input type="button" value="-" class="minus minus-btn">
-                <input type="number" step="1" name="quantity" min="1" value="{{$item['qtyCount']}}" class="input-text qty text qtyOf-{{$item['id']}}">
+                <input type="number" step="1" name="quantity" min="1" value="1" class="input-text qty text">
                 <input type="button" value="+" class="plus plus-btn">
             </div>
-            <span class="cart-icon add-to-cart cart-{{$item['id']}} {{$item['isCart'] == 1? 'pri-color':''}}" data-id="{{$item['id']}}"><i class="uil uil-shopping-cart-alt"></i></span>
+            <span class="cart-icon add-to-cart" data-id="{{ product.id }}">
+                <i class="uil uil-shopping-cart-alt"></i>
+            </span>
         </div>
     </div>
 </div>

@@ -52,18 +52,17 @@
                         <div class="main-title-tt">
                             <div class="main-title-left">
                                 <span>For You</span>
-                                <h2>Added New Products</h2>
+                                <h2>Added new products</h2>
                             </div>
                             <a href="/all-products" class="see-more-btn">See All</a>
                         </div>
                     </div>
-                    {% if products.count > 1 %}
-
+                    {% if products.count > 0 %}
                         <div class="col-md-12">
                             <div class="owl-carousel featured-slider owl-theme">
                                 {% for product in products %}
                                     <div class="item">
-                                        {% include 'includes/product.html' %}
+                                        {% include 'includes/product.html' with product=product %}
                                     </div>
                                 {% endfor %}
                             </div>
