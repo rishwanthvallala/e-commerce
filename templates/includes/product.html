@@ -1,6 +1,10 @@
 <div class="product-item">
     <a href="" class="product-img">
-        <img src="{{ product.primary_image.image.url }}" alt="{{ product.name }}">
+        {% if product.primary_image %}
+            <img src="{{ product.primary_image.image.url }}" alt="{{ product.name }}">
+        {% else %}
+            <img src="https://placehold.co/400x400?text=No+Image" alt="{{ product.name }}">
+        {% endif %}
         <div class="product-absolute-options">
             {% if product.discount_percentage > 0 %}
                 <span class="offer-badge-1">{{ product.discount_percentage }}% off</span>
