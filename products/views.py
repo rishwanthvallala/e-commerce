@@ -22,7 +22,10 @@ class FeaturedProductListView(ListView):
     model = Product
     template_name = "products/all.html"
     context_object_name = "products"
-    paginate_by = 10
+    paginate_by = 5
+
+    def get_queryset(self):
+        return Product.objects.filter(is_active=True, top_featured=True)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
