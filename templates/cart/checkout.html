@@ -279,4 +279,69 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+<script>
+document.getElementById('placeOrderBtn').addEventListener('click', function() {
+    // Get selected address
+    const selectedAddress = document.querySelector('input[name="shipping_address"]:checked');
+    if (!selectedAddress) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Please select a delivery address',
+            customClass: {
+                container: 'swal-container-class',
+                popup: 'swal-popup-class'
+            }
+        });
+        return;
+    }
+
+    // Get selected payment method
+    const selectedPayment = document.querySelector('input[name="payment_method"]:checked');
+    
+    // Create form data
+    const formData = {
+        address_id: selectedAddress.value,
+        payment_method: selectedPayment ? selectedPayment.value : 'cash_on_delivery'
+    };
+
+    // Send order request
+    fetch('{% url "cart:place_order" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.error,
+                customClass: {
+                    container: 'swal-container-class',
+                    popup: 'swal-popup-class'
+                }
+            });
+        } else {
+            window.location.href = data.redirect_url;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Something went wrong!',
+            customClass: {
+                container: 'swal-container-class',
+                popup: 'swal-popup-class'
+            }
+        });
+    });
+});
+</script>
 {% endblock %} 
