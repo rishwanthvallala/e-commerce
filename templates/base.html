@@ -24,7 +24,6 @@
     <link href="{% static 'frontend/css/bootstrap.min.css' %}" rel="stylesheet">
     <link href="{% static 'frontend/css/semantic.min.css' %}" rel="stylesheet">
 
-    {% block style %}
     <style>
         .swal-container-class {
             z-index: 99999 !important;
@@ -33,8 +32,13 @@
         .swal-popup-class {
             z-index: 99999 !important;
         }
+
+        .swal2-container {
+            z-index: 99999 !important;
+        }
     </style>
-    {% endblock %}
+
+    {% block style %}{% endblock %}
 
 </head>
 
@@ -98,6 +102,13 @@
 {% block script %}{% endblock %}
 
 <script src="{% static 'frontend/js/cart.js' %}"></script>
+
+<script>
+    // Remove any existing cart-related jQuery event handlers
+    $(document).ready(function() {
+        $('.cart-close-btn, .minus-btn, .plus-btn').off();
+    });
+</script>
 
 </body>
 </html>

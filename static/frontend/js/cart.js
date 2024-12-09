@@ -40,7 +40,7 @@ function updateCartDisplay(cartData) {
     cartData.items.forEach(item => {
         const product = item.product;
         const itemHtml = `
-            <div class="cart-item">
+            <div class="cart-item" data-item-id="${item.id}">
                 <div class="cart-product-img">
                     ${product.primary_image ? 
                         `<img src="${product.primary_image.image}" alt="${product.name}">` :
@@ -84,7 +84,6 @@ function fetchCartItems() {
     fetch('/cart/api/list/')
         .then(response => response.json())
         .then(data => {
-            console.log("data", data);
             if (data.length > 0) {
                 updateCartDisplay(data[0]);
                 updateCartCount(data[0].total_items);
@@ -94,9 +93,16 @@ function fetchCartItems() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Fetch cart items when page loads
+    // Remove any existing click handlers from cart elements
+    const existingCartElements = document.querySelectorAll('.cart-close-btn, .minus-btn, .plus-btn');
+    existingCartElements.forEach(element => {
+        element.replaceWith(element.cloneNode(true));
+    });
+    
+    // Initialize cart
     fetchCartItems();
-
+    
+    // Setup add to cart button
     const addToCartBtn = document.querySelector('.add-cart-btn');
     if (addToCartBtn) {
         addToCartBtn.addEventListener('click', function() {
@@ -189,6 +195,16 @@ function handleQuantityUpdate(itemId, newQuantity) {
             });
         } else {
             if (data.message === 'Item removed from cart') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Item removed from cart',
+                    timer: 1500,
+                    customClass: {
+                        container: 'swal-container-class',
+                        popup: 'swal-popup-class'
+                    }
+                });
                 fetchCartItems(); // Refresh entire cart
             } else {
                 // Update quantity input with the server's value
@@ -229,7 +245,40 @@ function setupQuantityControls() {
     const cartItemsContainer = document.querySelector('.side-cart-items');
     
     cartItemsContainer.addEventListener('click', function(e) {
+        e.preventDefault(); // Prevent default form submissions
         const target = e.target;
+        
+        // Handle remove button click
+        if (target.classList.contains('cart-close-btn') || 
+            (target.parentElement && target.parentElement.classList.contains('cart-close-btn'))) {
+            e.stopPropagation(); // Stop event bubbling
+            const button = target.classList.contains('cart-close-btn') ? target : target.parentElement;
+            const itemId = button.dataset.item;
+            
+            if (!itemId) {
+                console.error('No item ID found for remove button');
+                return;
+            }
+            
+            Swal.fire({
+                title: 'Remove Item?',
+                text: "Do you want to remove this item from cart?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, remove it!',
+                customClass: {
+                    container: 'swal-container-class',
+                    popup: 'swal-popup-class'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    handleQuantityUpdate(itemId, 0);
+                }
+            });
+            return;
+        }
         
         // Handle minus button
         if (target.classList.contains('minus-btn')) {
