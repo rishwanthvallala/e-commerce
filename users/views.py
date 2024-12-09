@@ -87,7 +87,7 @@ def add_address(request):
 
 
 class ProfileView(LoginRequiredMixin, TemplateView):
-    template_name = 'users/profile.html'
+    template_name = 'users/dashboard/profile.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -96,7 +96,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
 
 
 class OrderListView(LoginRequiredMixin, ListView):
-    template_name = 'users/orders.html'
+    template_name = 'users/dashboard/orders.html'
     context_object_name = 'orders'
 
     def get_queryset(self):
@@ -104,7 +104,7 @@ class OrderListView(LoginRequiredMixin, ListView):
 
 
 class WishlistView(LoginRequiredMixin, ListView):
-    template_name = 'users/wishlist.html'
+    template_name = 'users/dashboard/wishlist.html'
     context_object_name = 'wishlist_items'
 
     def get_queryset(self):
@@ -112,7 +112,7 @@ class WishlistView(LoginRequiredMixin, ListView):
 
 
 class AddressListView(LoginRequiredMixin, ListView):
-    template_name = 'users/addresses.html'
+    template_name = 'users/dashboard/addresses.html'
     context_object_name = 'addresses'
 
     def get_queryset(self):

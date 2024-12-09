@@ -48,13 +48,13 @@
                             <a href="{% url 'users:dashboard.profile' %}" class="user-item {% if request.resolver_match.url_name == 'dashboard.profile' %}active{% endif %}">
                                 <i class="uil uil-user"></i>My Profile
                             </a>
-                            <a href="{% url 'users:dashboard.orders' %}" class="user-item {% if request.resolver_match.url_name == 'orders' %}active{% endif %}">
+                            <a href="{% url 'users:dashboard.orders' %}" class="user-item {% if request.resolver_match.url_name == 'dashboard.orders' %}active{% endif %}">
                                 <i class="uil uil-box"></i>My Orders
                             </a>
-                            <a href="{% url 'users:dashboard.wishlist' %}" class="user-item {% if request.resolver_match.url_name == 'wishlist' %}active{% endif %}">
+                            <a href="{% url 'users:dashboard.wishlist' %}" class="user-item {% if request.resolver_match.url_name == 'dashboard.wishlist' %}active{% endif %}">
                                 <i class="uil uil-heart"></i>Shopping Wishlist
                             </a>
-                            <a href="{% url 'users:dashboard.addresses' %}" class="user-item {% if request.resolver_match.url_name == 'addresses' %}active{% endif %}">
+                            <a href="{% url 'users:dashboard.addresses' %}" class="user-item {% if request.resolver_match.url_name == 'dashboard.addresses' %}active{% endif %}">
                                 <i class="uil uil-location-point"></i>My Addresses
                             </a>
                             <a href="#" class="user-item" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -65,13 +65,6 @@
                 </div>
                 <div class="col-lg-9">
                     <div class="dashboard-right">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="main-title-tab">
-                                    <h4><i class="uil uil-apps"></i>{% block dashboard_subtitle %}{% endblock %}</h4>
-                                </div>
-                            </div>
-                        </div>
                         {% block dashboard_content %}{% endblock %}
                     </div>
                 </div>
