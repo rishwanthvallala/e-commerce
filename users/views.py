@@ -117,3 +117,33 @@ class AddressListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return Address.objects.filter(user=self.request.user)
+
+
+class DashboardView(LoginRequiredMixin, TemplateView):
+    template_name = 'users/dashboard/index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        
+        # Get orders
+        orders = Order.objects.filter(user=user)
+        total_orders = orders.count()
+        last_order = orders.first() if orders.exists() else None
+        recent_orders = orders[:5]  # Last 5 orders
+        
+        # Get wishlist count
+        wishlist_count = Wishlist.objects.filter(user=user).count()
+        
+        # Get address count
+        address_count = Address.objects.filter(user=user).count()
+        
+        context.update({
+            'user': user,
+            'total_orders': total_orders,
+            'last_order_date': last_order.created if last_order else None,
+            'recent_orders': recent_orders,
+            'wishlist_count': wishlist_count,
+            'address_count': address_count,
+        })
+        return context

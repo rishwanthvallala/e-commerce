@@ -81,11 +81,12 @@
                                     </span>
                                 </a>
                             </div>
-                            <a href="" class="item channel_item">
+                            <a href="{% url 'users:dashboard.index' %}" class="item channel_item">
                                 <i class="uil uil-apps icon__1"></i> Dashboard 
                             </a>
-                            <a href="" class="item channel_item">
-                                <i class="uil uil-user icon__1"></i> Profile </a>
+                            <a href="{% url 'users:dashboard.profile' %}" class="item channel_item">
+                                <i class="uil uil-user icon__1"></i> Profile 
+                            </a>
                             <a href="" class="item channel_item">
                                 <i class="uil uil-padlock icon__1"></i> Change Password 
                             </a>

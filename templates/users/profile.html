@@ -1,83 +1,35 @@
-{% extends 'base.html' %}
+{% extends 'users/dashboard/base.html' %}
 
-{% block title %}My Profile{% endblock %}
+{% block dashboard_title %}My Profile{% endblock %}
+{% block dashboard_subtitle %}Profile Settings{% endblock %}
 
-{% block content %}
-<div class="wrapper">
-    <div class="gambo-Breadcrumb">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">My Profile</li>
-                        </ol>
-                    </nav>
+{% block dashboard_content %}
+<div class="checkout-step-body">
+    <form id="profileForm" method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="form-group">
+                    <label class="control-label">Full Name*</label>
+                    <input type="text" name="name" class="form-control" value="{{ user.name }}" required>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="dashboard-group">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="user-dt">
-                        <div class="user-img">
-                            <img src="{{ user.avatar.url|default:'https://via.placeholder.com/150' }}" alt="">
-                        </div>
-                        <h4>{{ user.name }}</h4>
-                        <p>{{ user.phone }}<span><a href="mailto:{{ user.email }}">{{ user.email }}</a></span></p>
-                    </div>
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label class="control-label">Email*</label>
+                    <input type="email" name="email" class="form-control" value="{{ user.email }}" required>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="dashboard-group">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="dashboard-tab">
-                        <div class="tab-content">
-                            <div class="tab-pane active">
-                                <div class="row">
-                                    <div class="col-lg-8">
-                                        <div class="checkout-step-body">
-                                            <form id="profileForm" method="post">
-                                                {% csrf_token %}
-                                                <div class="row">
-                                                    <div class="col-lg-12">
-                                                        <div class="form-group">
-                                                            <label class="control-label">Full Name*</label>
-                                                            <input type="text" name="name" class="form-control" value="{{ user.name }}" required>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-6">
-                                                        <div class="form-group">
-                                                            <label class="control-label">Email*</label>
-                                                            <input type="email" name="email" class="form-control" value="{{ user.email }}" required>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-6">
-                                                        <div class="form-group">
-                                                            <label class="control-label">Phone*</label>
-                                                            <input type="text" name="phone" class="form-control" value="{{ user.phone }}" required>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-12">
-                                                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                                                    </div>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label class="control-label">Phone*</label>
+                    <input type="text" name="phone" class="form-control" value="{{ user.phone }}" required>
                 </div>
             </div>
+            <div class="col-lg-12">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
         </div>
-    </div>
+    </form>
 </div>
 {% endblock %} 
