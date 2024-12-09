@@ -4,6 +4,10 @@ from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Cart, CartItem
 from products.models import Product
@@ -110,3 +114,36 @@ def update_cart_item(request):
         'cart_total': cart_item.cart.total_items,
         'cart_total_price': cart_item.cart.total_price
     })
+
+
+class CheckoutView(LoginRequiredMixin, TemplateView):
+    template_name = 'cart/checkout.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try:
+            cart = Cart.objects.prefetch_related(
+                'items__product'
+            ).get(user=self.request.user)
+            
+            if cart.items.count() == 0:
+                context['cart'] = None
+                return context
+                
+            context.update({
+                'cart': cart,
+                'cart_items': cart.items.all(),
+                'total_price': cart.total_price,
+                'total_items': cart.total_items,
+                'delivery_charge': 50,  # You might want to make this configurable
+                'grand_total': cart.total_price + 50
+            })
+        except Cart.DoesNotExist:
+            context['cart'] = None
+            
+        return context
+    
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('users:login')
+        return super().get(request, *args, **kwargs)

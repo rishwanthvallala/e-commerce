@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    <div class="gambo-Breadcrumb">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Checkout</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="all-product-grid">
+        <div class="container">
+            {% if cart and cart_items %}
+            <div class="row">
+                <div class="col-lg-8 col-md-7">
+                    <div id="checkout_wizard" class="checkout accordion left-chck145">
+                        <!-- Shipping Address Section -->
+                        <div class="checkout-step">
+                            <div class="checkout-card" id="headingOne">
+                                <span class="checkout-step-number">1</span>
+                                <h4 class="checkout-step-title">
+                                    <button class="wizard-btn" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne"> 
+                                        Shipping Address
+                                    </button>
+                                </h4>
+                            </div>
+                            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#checkout_wizard">
+                                <div class="checkout-step-body">
+                                    <div class="address-fieldset">
+                                        <div class="row">
+                                            <div class="col-lg-6 col-md-12">
+                                                <div class="form-group">
+                                                    <label class="control-label">Full Name*</label>
+                                                    <input type="text" class="form-control" placeholder="Full Name" value="{{ user.name }}" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 col-md-12">
+                                                <div class="form-group">
+                                                    <label class="control-label">Phone Number*</label>
+                                                    <input type="text" class="form-control" placeholder="Phone Number" value="{{ user.phone }}" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-12 col-md-12">
+                                                <div class="form-group">
+                                                    <label class="control-label">Address*</label>
+                                                    <textarea class="form-control" placeholder="Address" required></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Payment Method Section -->
+                        <div class="checkout-step">
+                            <div class="checkout-card" id="headingTwo">
+                                <span class="checkout-step-number">2</span>
+                                <h4 class="checkout-step-title">
+                                    <button class="wizard-btn collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                        Payment Method
+                                    </button>
+                                </h4>
+                            </div>
+                            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#checkout_wizard">
+                                <div class="checkout-step-body">
+                                    <div class="payment-method-selection">
+                                        <div class="custom-control custom-radio">
+                                            <input type="radio" id="cashOnDelivery" name="paymentMethod" class="custom-control-input" checked>
+                                            <label class="custom-control-label" for="cashOnDelivery">Cash on Delivery</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Order Summary -->
+                <div class="col-lg-4 col-md-5">
+                    <div class="pdpt-bg mt-0">
+                        <div class="pdpt-title">
+                            <h4>Order Summary</h4>
+                        </div>
+                        <div class="right-cart-dt-body">
+                            {% for item in cart_items %}
+                            <div class="cart-item border_radius">
+                                <div class="cart-product-img">
+                                    {% if item.product.primary_image %}
+                                        <img src="{{ item.product.primary_image.image.url }}" alt="{{ item.product.name }}">
+                                    {% endif %}
+                                </div>
+                                <div class="cart-text">
+                                    <h4>{{ item.product.name }}</h4>
+                                    <div class="cart-item-price">
+                                        ৳{{ item.product.selling_price }} x {{ item.quantity }}
+                                        <span>৳{{ item.subtotal }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="total-checkout-group">
+                            <div class="cart-total-dil">
+                                <h4>Subtotal</h4>
+                                <span>৳{{ cart.total_price }}</span>
+                            </div>
+                            <div class="cart-total-dil pt-3">
+                                <h4>Delivery Charges</h4>
+                                <span>৳50</span>
+                            </div>
+                        </div>
+                        <div class="main-total-cart">
+                            <h2>Total</h2>
+                            <span>৳{{ cart.total_price|add:"50" }}</span>
+                        </div>
+                        <div class="payment-secure">
+                            <button class="next-btn16 hover-btn" type="button" id="placeOrderBtn">Place Order</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="row justify-content-center">
+                <div class="col-lg-6 col-md-8">
+                    <div class="empty-cart text-center">
+                        <i class="uil uil-shopping-cart-alt" style="font-size: 50px;"></i>
+                        <h3>Your cart is empty</h3>
+                        <p>Looks like you haven't added anything to your cart yet.</p>
+                        <a href="{% url 'products:index' %}" class="btn btn-primary">Continue Shopping</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 
