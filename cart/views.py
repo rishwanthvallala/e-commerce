@@ -129,14 +129,18 @@ class CheckoutView(LoginRequiredMixin, TemplateView):
             if cart.items.count() == 0:
                 context['cart'] = None
                 return context
-                
+            
+            # Get user's addresses
+            addresses = self.request.user.addresses.all()
+            
             context.update({
                 'cart': cart,
                 'cart_items': cart.items.all(),
                 'total_price': cart.total_price,
                 'total_items': cart.total_items,
-                'delivery_charge': 50,  # You might want to make this configurable
-                'grand_total': cart.total_price + 50
+                'delivery_charge': 50,
+                'grand_total': cart.total_price + 50,
+                'addresses': addresses
             })
         except Cart.DoesNotExist:
             context['cart'] = None

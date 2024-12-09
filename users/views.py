@@ -4,6 +4,11 @@ from django.views.generic import FormView, CreateView
 from django.urls import reverse_lazy
 from .forms import UserLoginForm, UserRegistrationForm
 from django.contrib.auth import get_user_model
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Address
 
 User = get_user_model()
 
@@ -58,3 +63,21 @@ def logout_view(request):
         logout(request)
         return redirect('users:login')
     return redirect('core:home')
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_address(request):
+    data = request.data
+    try:
+        address = Address.objects.create(
+            user=request.user,
+            phone=data['phone'],
+            address=data['address'],
+            city=data['city'],
+            postal_code=data['postal_code'],
+            is_default=data.get('is_default', False)
+        )
+        return Response({'message': 'Address added successfully'})
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)

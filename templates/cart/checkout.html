@@ -38,25 +38,84 @@
                             <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#checkout_wizard">
                                 <div class="checkout-step-body">
                                     <div class="address-fieldset">
-                                        <div class="row">
-                                            <div class="col-lg-6 col-md-12">
-                                                <div class="form-group">
-                                                    <label class="control-label">Full Name*</label>
-                                                    <input type="text" class="form-control" placeholder="Full Name" value="{{ user.name }}" required>
+                                        {% if addresses %}
+                                            <div class="saved-addresses mb-4">
+                                                <h5>Saved Addresses</h5>
+                                                {% for address in addresses %}
+                                                <div class="address-item mb-3">
+                                                    <div class="custom-control custom-radio">
+                                                        <input type="radio" id="address{{ address.id }}" 
+                                                               name="shipping_address" 
+                                                               class="custom-control-input"
+                                                               value="{{ address.id }}"
+                                                               {% if address.is_default %}checked{% endif %}>
+                                                        <label class="custom-control-label" for="address{{ address.id }}">
+                                                            <strong>{{ address.user.name }}</strong><br>
+                                                            {{ address.phone }}<br>
+                                                            {{ address.address }}<br>
+                                                            {{ address.city }}, {{ address.postal_code }}
+                                                            {% if address.is_default %}
+                                                                <span class="badge badge-primary ml-2">Default</span>
+                                                            {% endif %}
+                                                        </label>
+                                                    </div>
                                                 </div>
+                                                {% endfor %}
                                             </div>
-                                            <div class="col-lg-6 col-md-12">
-                                                <div class="form-group">
-                                                    <label class="control-label">Phone Number*</label>
-                                                    <input type="text" class="form-control" placeholder="Phone Number" value="{{ user.phone }}" required>
+                                            <button type="button" class="btn btn-outline-primary mb-4" 
+                                                    data-toggle="collapse" 
+                                                    data-target="#newAddressForm">
+                                                Add New Address
+                                            </button>
+                                        {% endif %}
+                                        
+                                        <div id="newAddressForm" class="collapse {% if not addresses %}show{% endif %}">
+                                            <form id="addressForm">
+                                                <div class="row">
+                                                    <div class="col-lg-12">
+                                                        <div class="form-group">
+                                                            <label class="control-label">Phone Number*</label>
+                                                            <input type="text" name="phone" class="form-control" 
+                                                                   placeholder="Phone Number" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-12">
+                                                        <div class="form-group">
+                                                            <label class="control-label">Address*</label>
+                                                            <textarea name="address" class="form-control" 
+                                                                      placeholder="Address" required></textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group">
+                                                            <label class="control-label">City*</label>
+                                                            <input type="text" name="city" class="form-control" 
+                                                                   placeholder="City" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group">
+                                                            <label class="control-label">Postal Code*</label>
+                                                            <input type="text" name="postal_code" class="form-control" 
+                                                                   placeholder="Postal Code" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-12">
+                                                        <div class="form-group">
+                                                            <div class="custom-control custom-checkbox">
+                                                                <input type="checkbox" name="is_default" 
+                                                                       class="custom-control-input" id="makeDefault">
+                                                                <label class="custom-control-label" for="makeDefault">
+                                                                    Make this my default address
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-12">
+                                                        <button type="submit" class="btn btn-primary">Save Address</button>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-lg-12 col-md-12">
-                                                <div class="form-group">
-                                                    <label class="control-label">Address*</label>
-                                                    <textarea class="form-control" placeholder="Address" required></textarea>
-                                                </div>
-                                            </div>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
@@ -145,4 +204,79 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block script %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addressForm = document.getElementById('addressForm');
+    if (addressForm) {
+        addressForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const formData = {
+                phone: this.querySelector('[name="phone"]').value,
+                address: this.querySelector('[name="address"]').value,
+                city: this.querySelector('[name="city"]').value,
+                postal_code: this.querySelector('[name="postal_code"]').value,
+                is_default: this.querySelector('[name="is_default"]').checked
+            };
+            
+            fetch('/users/api/address/add/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.error,
+                        customClass: {
+                            container: 'swal-container-class',
+                            popup: 'swal-popup-class'
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'Address saved successfully',
+                        timer: 1500,
+                        customClass: {
+                            container: 'swal-container-class',
+                            popup: 'swal-popup-class'
+                        }
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Something went wrong!',
+                    customClass: {
+                        container: 'swal-container-class',
+                        popup: 'swal-popup-class'
+                    }
+                });
+            });
+        });
+    }
+});
+</script>
 {% endblock %} 
