@@ -48,7 +48,7 @@
                             <div class="owl-carousel cate-slider owl-theme">
                                 {% for category in categories %}
                                     <div class="item">
-                                        <a href="" class="category-item">
+                                        <a href="{% url 'products:category' category.slug %}" class="category-item">
                                             <div class="cate-img">
                                                 <img src="{{ category.image.url }}" alt="">
                                             </div>
@@ -83,7 +83,7 @@
                                 <span>For You</span>
                                 <h2>Added new products</h2>
                             </div>
-                            <a href="/all-products" class="see-more-btn">See All</a>
+                            <a href="{% url 'products:index' %}" class="see-more-btn">See All</a>
                         </div>
                     </div>
                     {% if products.count > 0 %}

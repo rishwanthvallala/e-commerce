@@ -51,7 +51,7 @@
                                         {% endif %}
                                     {% endfor %}
                                 </div>
-                                <div id="sync2" class="owl-carousel owl-theme">
+                                <div id="sync2" class="owl-carousel owl-theme" style="margin-top: 10px;">
                                     {% for image in product.images.all %}
                                         <div class="item">
                                             <img src="{{ image.image.url }}" alt="{{ product.name }}">
