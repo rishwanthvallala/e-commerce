@@ -1,5 +1,4 @@
 from rest_framework.generics import ListAPIView
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
@@ -12,17 +11,10 @@ from .serializers import CartSerializer
 
 
 class CartListAPIView(ListAPIView):
-    queryset = Cart.objects.all()
     serializer_class = CartSerializer
 
     def get_queryset(self):
         return Cart.objects.filter(user=self.request.user)
-
-
-class AddToCartAPIView(APIView):
-    def post(self, request):
-        cart = Cart.objects.create(user=request.user)
-        return Response({"message": "Cart created"}, status=201)
 
 
 @api_view(['POST'])
@@ -68,3 +60,47 @@ def add_to_cart(request):
         'message': 'Item added to cart',
         'cart_total': cart.total_items
     }, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def update_cart_item(request):
+    item_id = request.data.get('item_id')
+    quantity = int(request.data.get('quantity', 1))
+    
+    if not item_id:
+        return Response({'error': 'Item ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+    try:
+        cart_item = CartItem.objects.select_related('product').get(
+            id=item_id, 
+            cart__user=request.user
+        )
+    except CartItem.DoesNotExist:
+        return Response({'error': 'Item not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    # Validate stock
+    if quantity > cart_item.product.stock:
+        return Response(
+            {'error': f'Only {cart_item.product.stock} items available in stock'}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    if quantity < 1:
+        cart_item.delete()
+        cart = Cart.objects.get(user=request.user)
+        return Response({
+            'message': 'Item removed from cart',
+            'cart_total': cart.total_items,
+            'cart_total_price': cart.total_price
+        })
+    
+    cart_item.quantity = quantity
+    cart_item.save()
+    
+    return Response({
+        'message': 'Quantity updated',
+        'item_subtotal': cart_item.subtotal,
+        'cart_total': cart_item.cart.total_items,
+        'cart_total_price': cart_item.cart.total_price
+    })
