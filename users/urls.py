@@ -21,16 +21,15 @@ urlpatterns = [
     path("logout/", require_http_methods(["POST"])(logout_view), name="logout"),
     path("forgot-password/", forgot_password, name="forgot-password"),
     path("api/address/add/", add_address, name="add_address"),
-    path("profile/", ProfileView.as_view(), name="profile"),
-    path("orders/", OrderListView.as_view(), name="orders"),
-    path("wishlist/", WishlistView.as_view(), name="wishlist"),
-    path("addresses/", AddressListView.as_view(), name="addresses"),
     path(
         "dashboard/",
         include(
             [
                 path("", DashboardView.as_view(), name="dashboard.index"),
                 path("profile/", ProfileView.as_view(), name="dashboard.profile"),
+                path("orders/", OrderListView.as_view(), name="dashboard.orders"),
+                path("wishlist/", WishlistView.as_view(), name="dashboard.wishlist"),
+                path("addresses/", AddressListView.as_view(), name="dashboard.addresses"),
             ]
         ),
     ),
