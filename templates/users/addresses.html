@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}My Addresses{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    <div class="gambo-Breadcrumb">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">My Addresses</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="all-product-grid">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="addresses-content">
+                        <div class="row">
+                            {% for address in addresses %}
+                            <div class="col-lg-6">
+                                <div class="address-item">
+                                    <div class="address-header">
+                                        <h5>
+                                            {{ address.user.name }}
+                                            {% if address.is_default %}
+                                                <span class="badge badge-primary">Default</span>
+                                            {% endif %}
+                                        </h5>
+                                    </div>
+                                    <div class="address-body">
+                                        <p>{{ address.phone }}</p>
+                                        <p>{{ address.address }}</p>
+                                        <p>{{ address.city }}, {{ address.postal_code }}</p>
+                                    </div>
+                                    <div class="address-footer">
+                                        <button class="btn btn-sm btn-outline-primary edit-address" data-id="{{ address.id }}">
+                                            Edit
+                                        </button>
+                                        {% if not address.is_default %}
+                                        <button class="btn btn-sm btn-outline-danger delete-address" data-id="{{ address.id }}">
+                                            Delete
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            <div class="col-lg-6">
+                                <div class="add-address">
+                                    <button class="btn btn-primary" data-toggle="modal" data-target="#addAddressModal">
+                                        <i class="uil uil-plus"></i> Add New Address
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

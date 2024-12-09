@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
-from django.views.generic import FormView, CreateView
+from django.views.generic import FormView, CreateView, TemplateView, ListView
 from django.urls import reverse_lazy
 from .forms import UserLoginForm, UserRegistrationForm
 from django.contrib.auth import get_user_model
@@ -9,6 +9,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Address
+from orders.models import Order
+from wishlist.models import Wishlist
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 User = get_user_model()
 
@@ -81,3 +84,36 @@ def add_address(request):
         return Response({'message': 'Address added successfully'})
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ProfileView(LoginRequiredMixin, TemplateView):
+    template_name = 'users/profile.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user'] = self.request.user
+        return context
+
+
+class OrderListView(LoginRequiredMixin, ListView):
+    template_name = 'users/orders.html'
+    context_object_name = 'orders'
+
+    def get_queryset(self):
+        return Order.objects.filter(user=self.request.user).order_by('-created')
+
+
+class WishlistView(LoginRequiredMixin, ListView):
+    template_name = 'users/wishlist.html'
+    context_object_name = 'wishlist_items'
+
+    def get_queryset(self):
+        return Wishlist.objects.filter(user=self.request.user).select_related('product')
+
+
+class AddressListView(LoginRequiredMixin, ListView):
+    template_name = 'users/addresses.html'
+    context_object_name = 'addresses'
+
+    def get_queryset(self):
+        return Address.objects.filter(user=self.request.user)
