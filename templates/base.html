@@ -24,7 +24,17 @@
     <link href="{% static 'frontend/css/bootstrap.min.css' %}" rel="stylesheet">
     <link href="{% static 'frontend/css/semantic.min.css' %}" rel="stylesheet">
 
-    {% block style %}{% endblock %}
+    {% block style %}
+    <style>
+        .swal-container-class {
+            z-index: 99999 !important;
+        }
+        
+        .swal-popup-class {
+            z-index: 99999 !important;
+        }
+    </style>
+    {% endblock %}
 
 </head>
 

@@ -14,7 +14,8 @@ function getCookie(name) {
 }
 
 function updateCartCount(count) {
-    const cartCountElements = document.querySelectorAll('.cart-count');
+    // Update all cart count elements including the header
+    const cartCountElements = document.querySelectorAll('.cart-count, .cart-item-count');
     cartCountElements.forEach(element => {
         element.textContent = count;
     });
@@ -83,8 +84,10 @@ function fetchCartItems() {
     fetch('/cart/api/list/')
         .then(response => response.json())
         .then(data => {
+            console.log("data", data);
             if (data.length > 0) {
                 updateCartDisplay(data[0]);
+                updateCartCount(data[0].total_items);
             }
         })
         .catch(error => console.error('Error fetching cart:', error));
@@ -118,14 +121,22 @@ document.addEventListener('DOMContentLoaded', function() {
                     Swal.fire({
                         icon: 'error',
                         title: 'Oops...',
-                        text: data.error
+                        text: data.error,
+                        customClass: {
+                            container: 'swal-container-class',
+                            popup: 'swal-popup-class'
+                        }
                     });
                 } else {
                     Swal.fire({
                         icon: 'success',
                         title: 'Success!',
                         text: 'Item added to cart',
-                        timer: 1500
+                        timer: 1500,
+                        customClass: {
+                            container: 'swal-container-class',
+                            popup: 'swal-popup-class'
+                        }
                     });
                     updateCartCount(data.cart_total);
                     fetchCartItems(); // Refresh cart display
@@ -135,7 +146,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
-                    text: 'Something went wrong! Please try again.'
+                    text: 'Something went wrong! Please try again.',
+                    customClass: {
+                        container: 'swal-container-class',
+                        popup: 'swal-popup-class'
+                    }
                 });
             });
         });
@@ -143,6 +158,10 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function handleQuantityUpdate(itemId, newQuantity) {
+    // Store the original quantity input element
+    const quantityInput = document.querySelector(`input.qty.text[data-item="${itemId}"]`);
+    const originalValue = parseInt(quantityInput.value);
+
     fetch('/cart/api/update/', {
         method: 'POST',
         headers: {
@@ -157,19 +176,26 @@ function handleQuantityUpdate(itemId, newQuantity) {
     .then(response => response.json())
     .then(data => {
         if (data.error) {
+            // Reset to original value if there's an error
+            quantityInput.value = originalValue;
             Swal.fire({
                 icon: 'error',
                 title: 'Oops...',
-                text: data.error
+                text: data.error,
+                customClass: {
+                    container: 'swal-container-class',
+                    popup: 'swal-popup-class'
+                }
             });
-            // Reset the quantity input to its previous value
-            fetchCartItems();
         } else {
             if (data.message === 'Item removed from cart') {
                 fetchCartItems(); // Refresh entire cart
             } else {
+                // Update quantity input with the server's value
+                quantityInput.value = newQuantity;
+                
                 // Update the specific item's subtotal
-                const itemPrice = document.querySelector(`[data-item="${itemId}"]`)
+                const itemPrice = quantityInput
                     .closest('.cart-text')
                     .querySelector('.cart-item-price');
                 itemPrice.innerHTML = formatPrice(data.item_subtotal);
@@ -184,11 +210,17 @@ function handleQuantityUpdate(itemId, newQuantity) {
         }
     })
     .catch(error => {
+        // Reset to original value if there's an error
+        quantityInput.value = originalValue;
         console.error('Error:', error);
         Swal.fire({
             icon: 'error',
             title: 'Oops...',
-            text: 'Something went wrong! Please try again.'
+            text: 'Something went wrong! Please try again.',
+            customClass: {
+                container: 'swal-container-class',
+                popup: 'swal-popup-class'
+            }
         });
     });
 }
@@ -205,7 +237,6 @@ function setupQuantityControls() {
             const quantityInput = target.nextElementSibling;
             const currentValue = parseInt(quantityInput.value);
             if (currentValue > 1) {
-                quantityInput.value = currentValue - 1;
                 handleQuantityUpdate(itemId, currentValue - 1);
             } else if (currentValue === 1) {
                 // Show confirmation before removing item
@@ -216,10 +247,14 @@ function setupQuantityControls() {
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, remove it!'
+                    confirmButtonText: 'Yes, remove it!',
+                    customClass: {
+                        container: 'swal-container-class',
+                        popup: 'swal-popup-class'
+                    }
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        handleQuantityUpdate(itemId, 0); // 0 quantity will remove the item
+                        handleQuantityUpdate(itemId, 0);
                     }
                 });
             }
@@ -230,7 +265,6 @@ function setupQuantityControls() {
             const itemId = target.dataset.item;
             const quantityInput = target.previousElementSibling;
             const currentValue = parseInt(quantityInput.value);
-            quantityInput.value = currentValue + 1;
             handleQuantityUpdate(itemId, currentValue + 1);
         }
     });
@@ -242,7 +276,6 @@ function setupQuantityControls() {
             const itemId = target.dataset.item;
             const newValue = parseInt(target.value);
             if (newValue < 1) {
-                target.value = 1;
                 handleQuantityUpdate(itemId, 1);
             } else {
                 handleQuantityUpdate(itemId, newValue);

@@ -12,9 +12,15 @@ from .serializers import CartSerializer
 
 class CartListAPIView(ListAPIView):
     serializer_class = CartSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Cart.objects.filter(user=self.request.user)
+        cart = Cart.objects.filter(user=self.request.user)
+        if not cart.exists():
+            # Create an empty cart if none exists
+            cart = Cart.objects.create(user=self.request.user)
+            return [cart]
+        return cart
 
 
 @api_view(['POST'])
