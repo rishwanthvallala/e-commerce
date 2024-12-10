@@ -117,7 +117,11 @@
                                                     </div>
                                                 </div>
                                             </li>
-                                            <li><span class="like-icon save-icon" title="wishlist"></span></li>
+                                            <li>
+                                                <span class="like-icon {% if product.id in wishlist_product_ids %}liked{% endif %}" 
+                                                      title="wishlist" 
+                                                      data-product="{{ product.id }}"></span>
+                                            </li>
                                         </ul>
                                         <ul class="ordr-crt-share">
                                             <li>
@@ -342,6 +346,35 @@
                     1200: {
                         items: 6
                     }
+                }
+            });
+        });
+
+        document.querySelector('.like-icon').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            fetch('/users/api/wishlist/toggle/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    product_id: '{{ product.id }}'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    Swal.fire('Error', data.error, 'error');
+                } else {
+                    this.classList.toggle('liked');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: data.message,
+                        timer: 1500
+                    });
                 }
             });
         });

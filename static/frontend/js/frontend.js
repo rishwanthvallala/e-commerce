@@ -382,63 +382,63 @@ $(document).ready(function() {
         })
 	});
     
-    $document.on('click','.like-icon, .like-button', function(e) {
-		e.preventDefault();
-        var item_id = $(this).attr("data-id");
-        var wishlist_count = parseInt($('.noti_count1').html());
-        // Dislike
-        if ($(this).hasClass('liked')) {
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "You want to remove this item from wishlist?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, remove it!'
-            }).then((result) => {
-                if (result.value) {
-                    $.ajax({
-                        method: "GET",
-                        url: base_url+'/wishlist/remove/'+item_id,
-                        success: function (result) {
-                            $('.like-'+item_id).removeClass('liked');
-                            wishlist_count--;
-                            $('.noti_count1').html(wishlist_count);
-                        },
-                        error: function (err) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Oops...',
-                                text: 'This record is conntect with another data!'
-                            })
-                        }
-                    });
-                }
-            })
-        }
-        // like
-        else {
-            $.ajax({
-                headers: {
-                    'XCSRF-TOKEN': csrf
-                },
-                type:"GET",
-                url: base_url+'/wishlist/'+item_id,
-                success: function(result){
-                    if (result.success == false) {
-                        window.location.href = base_url+'/signin';
-                    } else {
-                        $('.like-'+item_id).addClass('liked');
-                        wishlist_count++;
-                        $('.noti_count1').html(wishlist_count);
-                    }
-                },
-                error: function(err){
-                }
-            });
-        }
-	});
+    // $document.on('click','.like-icon, .like-button', function(e) {
+	// 	e.preventDefault();
+    //     var item_id = $(this).attr("data-id");
+    //     var wishlist_count = parseInt($('.noti_count1').html());
+    //     // Dislike
+    //     if ($(this).hasClass('liked')) {
+    //         Swal.fire({
+    //             title: 'Are you sure?',
+    //             text: "You want to remove this item from wishlist?",
+    //             icon: 'warning',
+    //             showCancelButton: true,
+    //             confirmButtonColor: '#3085d6',
+    //             cancelButtonColor: '#d33',
+    //             confirmButtonText: 'Yes, remove it!'
+    //         }).then((result) => {
+    //             if (result.value) {
+    //                 $.ajax({
+    //                     method: "GET",
+    //                     url: base_url+'/wishlist/remove/'+item_id,
+    //                     success: function (result) {
+    //                         $('.like-'+item_id).removeClass('liked');
+    //                         wishlist_count--;
+    //                         $('.noti_count1').html(wishlist_count);
+    //                     },
+    //                     error: function (err) {
+    //                         Swal.fire({
+    //                             icon: 'error',
+    //                             title: 'Oops...',
+    //                             text: 'This record is conntect with another data!'
+    //                         })
+    //                     }
+    //                 });
+    //             }
+    //         })
+    //     }
+    //     // like
+    //     else {
+    //         $.ajax({
+    //             headers: {
+    //                 'XCSRF-TOKEN': csrf
+    //             },
+    //             type:"GET",
+    //             url: base_url+'/wishlist/'+item_id,
+    //             success: function(result){
+    //                 if (result.success == false) {
+    //                     window.location.href = base_url+'/signin';
+    //                 } else {
+    //                     $('.like-'+item_id).addClass('liked');
+    //                     wishlist_count++;
+    //                     $('.noti_count1').html(wishlist_count);
+    //                 }
+    //             },
+    //             error: function(err){
+    //             }
+    //         });
+    //     }
+	// });
 
     $document.on('click', '.code-apply-btn', function(e) {
         var code = $('#input-promocode').val();
@@ -622,124 +622,110 @@ function payWithPaystack()
     handler.openIframe();
 }
 
-function removeFromWishlist(item_id) {
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "You want to remove this item from wishlist?",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, remove it!'
-    }).then((result) => {
-        if (result.value) {
-            $.ajax({
-                method: "GET",
-                url: base_url+'/wishlist/remove/'+item_id,
-                success: function (result) {
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 700);
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Deleted!',
-                        text: 'Item removed successfully.',
-                        showConfirmButton: false,
-                    })
-                },
-                error: function (err) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'This record is conntect with another data!'
-                    })
-                }
-            });
-        }
-    })
-}
+// function removeFromWishlist(item_id) {
+//     Swal.fire({
+//         title: 'Are you sure?',
+//         text: "You want to remove this item from wishlist?",
+//         icon: 'warning',
+//         showCancelButton: true,
+//         confirmButtonColor: '#3085d6',
+//         cancelButtonColor: '#d33',
+//         confirmButtonText: 'Yes, remove it!'
+//     }).then((result) => {
+//         if (result.value) {
+//             $.ajax({
+//                 method: "GET",
+//                 url: base_url+'/wishlist/remove/'+item_id,
+//                 success: function (result) {
+//                     setTimeout(() => {
+//                         window.location.reload();
+//                     }, 700);
+//                     Swal.fire({
+//                         icon: 'success',
+//                         title: 'Deleted!',
+//                         text: 'Item removed successfully.',
+//                         showConfirmButton: false,
+//                     })
+//                 },
+//                 error: function (err) {
+//                     Swal.fire({
+//                         icon: 'error',
+//                         title: 'Oops...',
+//                         text: 'This record is conntect with another data!'
+//                     })
+//                 }
+//             });
+//         }
+//     })
+// }
 
-function edit_address(address_id)
-{
-    $.ajax({
+// Wishlist functions
+function toggleWishlist(element, productId) {
+    fetch('/users/api/wishlist/toggle/', {
+        method: 'POST',
         headers: {
-            'XCSRF-TOKEN': csrf
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
         },
-        type:"GET",
-        url: base_url + '/profile/addressView/' + address_id,
-        success: function(result){
-            setTimeout(() => {
-                if(document.getElementById("location_map_edit"))
-                {
-                    $lat = $('.form #lat_edit').val();
-                    $long = $('.form #lang_edit').val();
-                    
-                    var latlng = new google.maps.LatLng($lat, $long);
-                    var mapOptions = {
-                    zoom: 10,
-                    center: latlng
+        body: JSON.stringify({
+            product_id: productId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            Swal.fire('Error', data.error, 'error');
+        } else {
+            element.classList.toggle('liked');
+            
+            // If we're on the wishlist page, remove the item
+            if (window.location.pathname.includes('/dashboard/wishlist/')) {
+                const productCard = element.closest('.col-lg-3');
+                if (productCard) {
+                    productCard.remove();
+                    // Check if wishlist is empty
+                    if (document.querySelectorAll('.product-item').length === 0) {
+                        window.location.reload();
                     }
-            
-                    location_map = new google.maps.Map(document.getElementById('location_map_edit'), mapOptions);
-            
-                    var marker = new google.maps.Marker({
-                        position: new google.maps.LatLng($lat, $long),
-                        map: location_map,
-                        draggable: true
-                    });
-            
-                    google.maps.event.addListener(marker, 'dragend', function(evt){
-                        $('.form #lat_edit').val(evt.latLng.lat());
-                        $('.form #lang_edit').val(evt.latLng.lng());
-                    });
                 }
-            }, 1500);
-            $("#address_edit_model #id_edit").val(result.id);
-            $("#address_edit_model #soc_name_edit").val(result.soc_name);
-            $("#address_edit_model #street_edit").val(result.street);
-            $("#address_edit_model #pincode_edit").val(result.zipcode);
-            $("#address_edit_model #city_edit").val(result.city);
-            $("#address_edit_model #lat_edit").val(result.lat);
-            $("#address_edit_model #lang_edit").val(result.lang);
-            $('#address_edit_model #'+result.address_type).prop('checked',true);
-        },
-        error: function(err){}
+            } else {
+                // Show success message on other pages
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: data.message,
+                    timer: 1500
+                });
+            }
+        }
     });
 }
 
-function delete_address(address_id) {
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "You want to delete this address?",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
-    }).then((result) => {
-        if (result.value) {
-            $.ajax({
-                method: "get",
-                url: base_url+'/profile/addressDelete/'+address_id,
-                success: function (result) {
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 700);
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Deleted!',
-                        text: 'Address removed successfully.',
-                        showConfirmButton: false,
-                    })
-                },
-                error: function (err) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'This address is conntect with another data!'
-                    })
-                }
-            });
-        }
+// Add to cart function
+function addToCart(productId, quantity = 1) {
+    fetch('/cart/api/add/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            quantity: quantity
+        })
     })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            Swal.fire('Error', data.error, 'error');
+        } else {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'Item added to cart',
+                timer: 1500
+            });
+            updateCartCount(data.cart_total);
+        }
+    });
 }

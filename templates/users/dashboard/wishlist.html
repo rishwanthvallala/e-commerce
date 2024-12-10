@@ -1,157 +1,80 @@
-{% extends 'base.html' %}
+{% extends 'users/dashboard/base.html' %}
 
-{% block title %}My Wishlist{% endblock %}
+{% block dashboard_title %}My Wishlist{% endblock %}
+{% block dashboard_subtitle %}Wishlist Items{% endblock %}
 
-{% block content %}
-<div class="wrapper">
-    <div class="gambo-Breadcrumb">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">My Wishlist</li>
-                        </ol>
-                    </nav>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="all-product-grid">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="wishlist-content">
-                        {% if wishlist_items %}
-                            <div class="row">
-                                {% for item in wishlist_items %}
-                                <div class="col-lg-3 col-md-6">
-                                    <div class="product-item">
-                                        <a href="{% url 'products:detail' item.product.slug %}" class="product-img">
-                                            {% if item.product.primary_image %}
-                                                <img src="{{ item.product.primary_image.image.url }}" alt="{{ item.product.name }}">
-                                            {% endif %}
-                                            {% if item.product.discount_percentage > 0 %}
-                                                <div class="product-absolute-options">
-                                                    <span class="offer-badge-1">{{ item.product.discount_percentage }}% off</span>
-                                                </div>
-                                            {% endif %}
-                                        </a>
-                                        <div class="product-text-dt">
-                                            <h4>{{ item.product.name }}</h4>
-                                            <div class="product-price">
-                                                ৳{{ item.product.selling_price }}
-                                                {% if item.product.discount_percentage > 0 %}
-                                                    <span>���{{ item.product.original_price }}</span>
-                                                {% endif %}
-                                            </div>
-                                            <div class="product-actions">
-                                                <button class="btn btn-primary add-to-cart" data-product="{{ item.product.id }}">
-                                                    Add to Cart
-                                                </button>
-                                                <button class="btn btn-outline-danger remove-from-wishlist" data-id="{{ item.id }}">
-                                                    <i class="uil uil-trash-alt"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            </div>
+{% block dashboard_content %}
+<div class="row">
+    {% if wishlist_items %}
+        {% for item in wishlist_items %}
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="product-item">
+                <a href="{% url 'products:detail' item.product.slug %}" class="product-img">
+                    {% if item.product.primary_image %}
+                        <img src="{{ item.product.primary_image.image.url }}" alt="{{ item.product.name }}">
+                    {% endif %}
+                    <div class="product-absolute-options">
+                        {% if item.product.discount_percentage > 0 %}
+                            <span class="offer-badge-1">{{ item.product.discount_percentage }}% off</span>
+                        {% endif %}
+                        <span class="like-icon liked" title="Remove from wishlist" 
+                              data-product="{{ item.product.id }}"></span>
+                    </div>
+                </a>
+                <div class="product-text-dt">
+                    <p>
+                        {% if item.product.stock > 0 %}
+                            Available<span>(In Stock)</span>
                         {% else %}
-                            <div class="empty-wishlist text-center">
-                                <i class="uil uil-heart" style="font-size: 50px;"></i>
-                                <h3>Your Wishlist is Empty</h3>
-                                <p>Add items that you like to your wishlist</p>
-                                <a href="{% url 'products:index' %}" class="btn btn-primary">Continue Shopping</a>
-                            </div>
+                            <span>(Out of Stock)</span>
+                        {% endif %}
+                    </p>
+                    <h4>{{ item.product.name }}</h4>
+                    <div class="product-price">
+                        ৳{{ item.product.selling_price }}
+                        {% if item.product.discount_percentage > 0 %}
+                            <span>৳{{ item.product.original_price }}</span>
                         {% endif %}
                     </div>
+                    {% if item.product.stock > 0 %}
+                    <button class="add-cart-btn hover-btn" data-product="{{ item.product.id }}">
+                        <i class="uil uil-shopping-cart-alt"></i> Add to Cart
+                    </button>
+                    {% endif %}
                 </div>
             </div>
         </div>
-    </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="empty-wishlist text-center py-5">
+                <i class="uil uil-heart" style="font-size: 50px;"></i>
+                <h3>Your Wishlist is Empty</h3>
+                <p>Add items that you like to your wishlist</p>
+                <a href="{% url 'products:index' %}" class="btn btn-primary">Continue Shopping</a>
+            </div>
+        </div>
+    {% endif %}
 </div>
-{% endblock %}
 
 {% block script %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Add to cart functionality
-    const addToCartButtons = document.querySelectorAll('.add-to-cart');
-    addToCartButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const productId = this.dataset.product;
-            fetch('/cart/api/add/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: JSON.stringify({
-                    product_id: productId,
-                    quantity: 1
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: data.error
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success',
-                        text: 'Item added to cart',
-                        timer: 1500
-                    });
-                    updateCartCount(data.cart_total);
-                }
-            });
+    // Use frontend.js wishlist toggle function
+    document.querySelectorAll('.like-icon').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            toggleWishlist(this, this.dataset.product);
         });
     });
-
-    // Remove from wishlist functionality
-    const removeButtons = document.querySelectorAll('.remove-from-wishlist');
-    removeButtons.forEach(button => {
+    
+    // Use frontend.js add to cart function
+    document.querySelectorAll('.add-cart-btn').forEach(button => {
         button.addEventListener('click', function() {
-            const itemId = this.dataset.id;
-            Swal.fire({
-                title: 'Remove Item?',
-                text: "Are you sure you want to remove this item from your wishlist?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, remove it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch(`/users/api/wishlist/remove/${itemId}/`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRFToken': getCookie('csrftoken')
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.error) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: data.error
-                            });
-                        } else {
-                            window.location.reload();
-                        }
-                    });
-                }
-            });
+            addToCart(this.dataset.product, 1);
         });
     });
 });
 </script>
+{% endblock %}
 {% endblock %} 

@@ -13,6 +13,7 @@ from .views import (
     WishlistView,
     AddressListView,
     ChangePasswordView,
+    toggle_wishlist,
 )
 from django.views.decorators.http import require_http_methods
 
@@ -30,6 +31,7 @@ urlpatterns = [
                 path("address/add/", add_address, name="add_address"),
                 path("address/update/", update_address, name="update_address"),
                 path("address/delete/", delete_address, name="delete_address"),
+                path("wishlist/toggle/", toggle_wishlist, name="toggle_wishlist"),
             ]
         ),
     ),
