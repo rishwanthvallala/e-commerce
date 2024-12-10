@@ -152,7 +152,9 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
+{% block style %}
 <style>
 .address-card {
     background: #fff;
@@ -185,7 +187,7 @@
     color: #f55d2c;
 }
 </style>
-
+{% endblock %}
 {% block script %}
 <script>
 function validateAddressForm(formData) {
@@ -249,10 +251,11 @@ function validateAddressForm(formData) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    let isSubmitting = false;
+    
     // Add Address
     document.getElementById('saveAddressBtn').addEventListener('click', function() {
-        // Disable the button to prevent double submission
-        this.disabled = true;
+        if (isSubmitting) return;
         
         const form = document.getElementById('addAddressForm');
         const formData = {
@@ -264,10 +267,11 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         if (!validateAddressForm(formData)) {
-            // Re-enable the button if validation fails
-            this.disabled = false;
             return;
         }
+
+        isSubmitting = true;
+        this.disabled = true;
 
         fetch('/users/api/address/add/', {
             method: 'POST',
@@ -281,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.error) {
                 Swal.fire('Error', data.error, 'error');
-                // Re-enable the button on error
+                isSubmitting = false;
                 this.disabled = false;
             } else {
                 $('#addAddressModal').modal('hide');
@@ -296,9 +300,16 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => {
             console.error('Error:', error);
             Swal.fire('Error', 'Something went wrong!', 'error');
-            // Re-enable the button on error
+            isSubmitting = false;
             this.disabled = false;
         });
+    });
+
+    // Reset submission flag when modal is closed
+    $('#addAddressModal').on('hidden.bs.modal', function () {
+        isSubmitting = false;
+        document.getElementById('saveAddressBtn').disabled = false;
+        document.getElementById('addAddressForm').reset();
     });
 
     // Also prevent form submission on enter key

@@ -90,13 +90,13 @@
                             <a href="" class="item channel_item">
                                 <i class="uil uil-padlock icon__1"></i> Change Password 
                             </a>
-                            <a href="" class="item channel_item">
+                            <a href="{% url 'users:dashboard.orders' %}" class="item channel_item">
                                 <i class="uil uil-box icon__1"></i>My Orders
                             </a>
-                            <a href="" class="item channel_item">
+                            <a href="{% url 'users:dashboard.wishlist' %}" class="item channel_item">
                                 <i class="uil uil-heart icon__1"></i> My Wishlist 
                             </a>
-                            <a href="" class="item channel_item">
+                            <a href="{% url 'users:dashboard.addresses' %}" class="item channel_item">
                                 <i class="uil uil-location-point icon__1"></i> My Address 
                             </a>
                             <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" 
