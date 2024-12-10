@@ -10,6 +10,119 @@
             margin-left: 10px;
             font-weight: 600;
         }
+
+        .quick-buy-btn {
+            background: #f55d2c;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .quick-buy-btn:hover {
+            background: #f44336;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(245, 93, 44, 0.3);
+        }
+
+        .quick-buy-btn i {
+            margin-right: 5px;
+        }
+
+        .similar-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            transition: all 0.3s ease;
+        }
+
+        .similar-item:hover {
+            background: #f8f9fa;
+        }
+
+        .similar-item:last-child {
+            border-bottom: none;
+        }
+
+        .similar-item-img {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .similar-item-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .similar-item-info {
+            flex: 1;
+        }
+
+        .similar-item-info h5 {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #2b2f4c;
+        }
+
+        .price-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .price-info strong {
+            color: #f55d2c;
+            font-size: 16px;
+        }
+
+        .price-info .old-price {
+            color: #c7c7c7;
+            text-decoration: line-through;
+            font-size: 13px;
+        }
+
+        .price-info .discount {
+            background: #ffeee8;
+            color: #f55d2c;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        .add-to-cart-btn {
+            background: #f55d2c;
+            color: #fff;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .add-to-cart-btn:hover {
+            background: #f44336;
+            transform: translateY(-1px);
+        }
+
+        .add-to-cart-btn i {
+            margin-right: 4px;
+        }
+
+        .out-of-stock {
+            color: #dc3545;
+            font-size: 13px;
+            font-weight: 500;
+        }
     </style>
 {% endblock %}
 
@@ -178,45 +291,28 @@
                         </div>
                         <div class="pdpt-body scrollstyle_4">
                             {% for product in similar_products %}
-                            <div class="cart-item border_radius">
-                                <a href="{% url 'products:detail' product.slug %}" class="cart-product-img">
+                            <div class="similar-item">
+                                <a href="{% url 'products:detail' product.slug %}" class="similar-item-img">
                                     {% if product.primary_image %}
                                         <img src="{{ product.primary_image.image.url }}" alt="{{ product.name }}">
                                     {% endif %}
-                                    {% if product.discount_percentage > 0 %}
-                                        <div class="offer-badge">{{ product.discount_percentage }}% OFF</div>
-                                    {% endif %}
                                 </a>
-                                <div class="cart-text">
-                                    <h4>{{ product.name }}</h4>
-                                    {% if product.has_variants %}
-                                    <div class="cart-radio">
-                                        <ul class="kggrm-now">
-                                            {% for variant in product.variants.all %}
-                                            <li>
-                                                <input type="radio" id="var{{ variant.id }}" name="cart{{ product.id }}">
-                                                <label for="var{{ variant.id }}">
-                                                    {% if variant.size %}{{ variant.size }}{% endif %}
-                                                    {% if variant.color %}{{ variant.color }}{% endif %}
-                                                </label>
-                                            </li>
-                                            {% endfor %}
-                                        </ul>
+                                <div class="similar-item-info">
+                                    <h5>{{ product.name }}</h5>
+                                    <div class="price-info">
+                                        <strong>৳{{ product.selling_price }}</strong>
+                                        {% if product.discount_percentage > 0 %}
+                                            <span class="old-price">৳{{ product.original_price }}</span>
+                                            <span class="discount">-{{ product.discount_percentage }}%</span>
+                                        {% endif %}
                                     </div>
+                                    {% if product.stock > 0 %}
+                                        <button class="add-to-cart-btn" data-product="{{ product.id }}">
+                                            <i class="uil uil-shopping-cart-alt"></i> Add
+                                        </button>
+                                    {% else %}
+                                        <span class="out-of-stock">Out of Stock</span>
                                     {% endif %}
-                                    <div class="qty-group">
-                                        <div class="quantity buttons_added">
-                                            <input type="button" value="-" class="minus minus-btn">
-                                            <input type="number" step="1" name="quantity" value="1" class="input-text qty text">
-                                            <input type="button" value="+" class="plus plus-btn">
-                                        </div>
-                                        <div class="cart-item-price">
-                                            ৳{{ product.selling_price }}
-                                            {% if product.discount_percentage > 0 %}
-                                                <span>৳{{ product.original_price }}</span>
-                                            {% endif %}
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                             {% endfor %}
@@ -306,7 +402,11 @@
                                         <span>৳{{ product.original_price }}</span>
                                     {% endif %}
                                 </div>
-                                <a href="{% url 'products:detail' product.slug %}" class="order-btn hover-btn">Details</a>
+                                {% if product.stock > 0 %}
+                                    <button class="quick-buy-btn hover-btn w-100" data-product="{{ product.id }}">
+                                        <i class="uil uil-shopping-cart-alt"></i> Quick Buy
+                                    </button>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -376,6 +476,13 @@
                         timer: 1500
                     });
                 }
+            });
+        });
+
+        document.querySelectorAll('.quick-buy-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                // Add to cart with default quantity of 1
+                addToCart(this.dataset.product, 1);
             });
         });
     </script>
