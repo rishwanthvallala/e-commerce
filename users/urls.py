@@ -12,6 +12,7 @@ from .views import (
     OrderListView,
     WishlistView,
     AddressListView,
+    ChangePasswordView,
 )
 from django.views.decorators.http import require_http_methods
 
@@ -43,6 +44,7 @@ urlpatterns = [
                 path(
                     "addresses/", AddressListView.as_view(), name="dashboard.addresses"
                 ),
+                path("change-password/", ChangePasswordView.as_view(), name="dashboard.change_password"),
             ]
         ),
     ),

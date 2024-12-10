@@ -15,6 +15,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.contrib.auth import update_session_auth_hash
+from django.contrib import messages
+from django.contrib.messages import SUCCESS, ERROR
 
 User = get_user_model()
 
@@ -243,3 +246,30 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             'address_count': address_count,
         })
         return context
+
+
+class ChangePasswordView(LoginRequiredMixin, TemplateView):
+    template_name = 'users/dashboard/change_password.html'
+
+    def post(self, request, *args, **kwargs):
+        old_password = request.POST.get('old_password')
+        new_password1 = request.POST.get('new_password1')
+        new_password2 = request.POST.get('new_password2')
+
+        if not request.user.check_password(old_password):
+            messages.add_message(request, ERROR, 'Current password is incorrect', extra_tags='danger')
+            return self.render_to_response({})
+
+        if new_password1 != new_password2:
+            messages.add_message(request, ERROR, 'New passwords do not match', extra_tags='danger')
+            return self.render_to_response({})
+
+        if len(new_password1) < 8:
+            messages.add_message(request, ERROR, 'Password must be at least 8 characters long', extra_tags='danger')
+            return self.render_to_response({})
+
+        request.user.set_password(new_password1)
+        request.user.save()
+        update_session_auth_hash(request, request.user)  # Keep user logged in
+        messages.add_message(request, SUCCESS, 'Password changed successfully', extra_tags='success')
+        return redirect('users:dashboard.profile')
