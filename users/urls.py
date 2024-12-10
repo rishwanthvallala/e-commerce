@@ -6,6 +6,8 @@ from .views import (
     forgot_password,
     logout_view,
     add_address,
+    update_address,
+    delete_address,
     ProfileView,
     OrderListView,
     WishlistView,
@@ -21,6 +23,8 @@ urlpatterns = [
     path("logout/", require_http_methods(["POST"])(logout_view), name="logout"),
     path("forgot-password/", forgot_password, name="forgot-password"),
     path("api/address/add/", add_address, name="add_address"),
+    path("api/address/update/", update_address, name="update_address"),
+    path("api/address/delete/", delete_address, name="delete_address"),
     path(
         "dashboard/",
         include(

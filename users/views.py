@@ -12,6 +12,8 @@ from .models import Address
 from orders.models import Order
 from wishlist.models import Wishlist
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
+from django.shortcuts import get_object_or_404
 
 User = get_user_model()
 
@@ -73,15 +75,108 @@ def logout_view(request):
 def add_address(request):
     data = request.data
     try:
+        # Validate required fields
+        required_fields = ['phone', 'address', 'city', 'postal_code']
+        for field in required_fields:
+            if not data.get(field):
+                return Response({
+                    'error': f'{field.replace("_", " ").title()} is required'
+                }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Validate phone number (basic validation)
+        phone = data['phone']
+        if not phone.isdigit() or len(phone) < 10:
+            return Response({
+                'error': 'Please enter a valid phone number'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Create address
         address = Address.objects.create(
             user=request.user,
-            phone=data['phone'],
+            phone=phone,
             address=data['address'],
             city=data['city'],
             postal_code=data['postal_code'],
             is_default=data.get('is_default', False)
         )
         return Response({'message': 'Address added successfully'})
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def update_address(request):
+    data = request.data
+    try:
+        address_id = data.get('address_id')
+        if not address_id:
+            return Response({
+                'error': 'Address ID is required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+            
+        address = get_object_or_404(Address, id=address_id, user=request.user)
+        
+        # Validate required fields
+        required_fields = ['phone', 'address', 'city', 'postal_code']
+        for field in required_fields:
+            if not data.get(field):
+                return Response({
+                    'error': f'{field.replace("_", " ").title()} is required'
+                }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Validate phone number
+        phone = data['phone']
+        if not phone.isdigit() or len(phone) < 10:
+            return Response({
+                'error': 'Please enter a valid phone number'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Update address
+        address.phone = phone
+        address.address = data['address']
+        address.city = data['city']
+        address.postal_code = data['postal_code']
+        address.is_default = data.get('is_default', False)
+        address.save()
+        
+        return Response({'message': 'Address updated successfully'})
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def delete_address(request):
+    data = request.data
+    try:
+        address_id = data.get('address_id')
+        if not address_id:
+            return Response({
+                'error': 'Address ID is required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+            
+        address = get_object_or_404(Address, id=address_id, user=request.user)
+        
+        # Check if address is default
+        if address.is_default:
+            return Response({
+                'error': 'Cannot delete default address'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if address is used in any orders
+        orders_with_address = Order.objects.filter(
+            Q(address=address),
+            ~Q(status__in=['delivered', 'cancelled'])
+        ).exists()
+        
+        if orders_with_address:
+            return Response({
+                'error': 'Cannot delete address as it is being used in active orders'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        address.delete()
+        return Response({'message': 'Address deleted successfully'})
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
