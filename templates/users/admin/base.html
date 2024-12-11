@@ -139,6 +139,18 @@
                 </nav>
             </div>
             <div id="layoutSidenav_content">
+                {% if messages %}
+                    <div class="container-fluid mt-3">
+                        {% for message in messages %}
+                            <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
                 {% block content %}
                 {% endblock %}
                 <footer class="py-4 bg-footer mt-auto">
