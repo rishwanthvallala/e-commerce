@@ -10,6 +10,7 @@ from django.contrib import messages
 
 from categories.models import Category
 from orders.models import Order
+from offers.models import Offer
 
 
 def is_admin(user):
@@ -152,3 +153,88 @@ def admin_category_edit(request, category_id):
 
     context = {"category": category}
     return render(request, "users/admin/categories/edit.html", context)
+
+
+@user_passes_test(is_admin)
+def admin_offers(request):
+    offers = Offer.objects.all().order_by('-created')
+    context = {"offers": offers}
+    return render(request, "users/admin/offers/index.html", context)
+
+
+@user_passes_test(is_admin)
+def admin_offer_add(request):
+    if request.method == "POST":
+        title = request.POST.get("title")
+        description = request.POST.get("description")
+        offer_type = request.POST.get("offer_type")
+        discount_value = request.POST.get("discount_value")
+        buy_quantity = request.POST.get("buy_quantity", 1)
+        get_quantity = request.POST.get("get_quantity", 0)
+        start_date = request.POST.get("start_date")
+        end_date = request.POST.get("end_date")
+        is_active = request.POST.get("status") == "active"
+        min_purchase_amount = request.POST.get("min_purchase_amount", 0)
+        usage_limit = request.POST.get("usage_limit", 0)
+        image = request.FILES.get("image")
+
+        offer = Offer.objects.create(
+            title=title,
+            description=description,
+            offer_type=offer_type,
+            discount_value=discount_value,
+            buy_quantity=buy_quantity,
+            get_quantity=get_quantity,
+            start_date=start_date,
+            end_date=end_date,
+            is_active=is_active,
+            min_purchase_amount=min_purchase_amount,
+            usage_limit=usage_limit,
+            image=image
+        )
+        messages.success(request, "Offer added successfully!")
+        return redirect("users:admin_offers")
+
+    return render(request, "users/admin/offers/add.html", {
+        'offer_types': Offer.OfferType.choices
+    })
+
+
+@user_passes_test(is_admin)
+def admin_offer_edit(request, offer_id):
+    offer = get_object_or_404(Offer, id=offer_id)
+
+    if request.method == "POST":
+        offer.title = request.POST.get("title")
+        offer.description = request.POST.get("description")
+        offer.offer_type = request.POST.get("offer_type")
+        offer.discount_value = request.POST.get("discount_value")
+        offer.buy_quantity = request.POST.get("buy_quantity", 1)
+        offer.get_quantity = request.POST.get("get_quantity", 0)
+        offer.start_date = request.POST.get("start_date")
+        offer.end_date = request.POST.get("end_date")
+        offer.is_active = request.POST.get("status") == "active"
+        offer.min_purchase_amount = request.POST.get("min_purchase_amount", 0)
+        offer.usage_limit = request.POST.get("usage_limit", 0)
+
+        if "image" in request.FILES:
+            offer.image = request.FILES["image"]
+
+        offer.save()
+        messages.success(request, "Offer updated successfully!")
+        return redirect("users:admin_offers")
+
+    context = {
+        "offer": offer,
+        'offer_types': Offer.OfferType.choices
+    }
+    return render(request, "users/admin/offers/edit.html", context)
+
+
+@user_passes_test(is_admin)
+def admin_offer_delete(request, offer_id):
+    if request.method == "POST":
+        offer = get_object_or_404(Offer, id=offer_id)
+        offer.delete()
+        messages.success(request, "Offer deleted successfully!")
+    return redirect("users:admin_offers")

@@ -1,0 +1,97 @@
+{% extends 'users/admin/base.html' %}
+
+{% block admin_title %}Add Offer{% endblock %}
+
+{% block content %}
+<main>
+    <div class="container-fluid">
+        <h2 class="mt-30 page-title">Offers</h2>
+        <ol class="breadcrumb mb-30">
+            <li class="breadcrumb-item"><a href="{% url 'users:admin.index' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'users:admin_offers' %}">Offers</a></li>
+            <li class="breadcrumb-item active">Add Offer</li>
+        </ol>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card card-static-2 mb-30">
+                    <div class="card-title-2">
+                        <h4>Add New Offer</h4>
+                    </div>
+                    <div class="card-body-table">
+                        <form method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label>Title*</label>
+                                <input type="text" class="form-control" name="title" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Description*</label>
+                                <textarea class="form-control" name="description" rows="7" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Offer Type*</label>
+                                <select class="form-control" name="offer_type" id="offer_type" required>
+                                    {% for type_value, type_label in offer_types %}
+                                        <option value="{{ type_value }}">{{ type_label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Discount Value*</label>
+                                <input type="number" class="form-control" name="discount_value" step="0.01" min="0" required>
+                            </div>
+                            <div class="form-group buy-get-fields" style="display: none;">
+                                <label>Buy Quantity*</label>
+                                <input type="number" class="form-control" name="buy_quantity" min="1" value="1">
+                            </div>
+                            <div class="form-group buy-get-fields" style="display: none;">
+                                <label>Get Quantity*</label>
+                                <input type="number" class="form-control" name="get_quantity" min="0" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Minimum Purchase Amount</label>
+                                <input type="number" class="form-control" name="min_purchase_amount" step="0.01" min="0" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Usage Limit (0 for unlimited)</label>
+                                <input type="number" class="form-control" name="usage_limit" min="0" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Start Date*</label>
+                                <input type="datetime-local" class="form-control" name="start_date" required>
+                            </div>
+                            <div class="form-group">
+                                <label>End Date*</label>
+                                <input type="datetime-local" class="form-control" name="end_date" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Status*</label>
+                                <select class="form-control" name="status" required>
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Offer Image</label>
+                                <input type="file" class="form-control" name="image">
+                            </div>
+                            <button type="submit" class="save-btn hover-btn">Add Offer</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+document.getElementById('offer_type').addEventListener('change', function() {
+    const buyGetFields = document.querySelectorAll('.buy-get-fields');
+    if (this.value === 'buy_get') {
+        buyGetFields.forEach(field => field.style.display = 'block');
+    } else {
+        buyGetFields.forEach(field => field.style.display = 'none');
+    }
+});
+</script>
+{% endblock %} 
