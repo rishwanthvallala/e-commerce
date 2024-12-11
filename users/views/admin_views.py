@@ -7,10 +7,12 @@ from calendar import month_name
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.contrib import messages
+from django.utils.text import slugify
 
 from categories.models import Category
 from orders.models import Order
 from offers.models import Offer
+from products.models import Product, ProductImage
 
 
 def is_admin(user):
@@ -238,3 +240,169 @@ def admin_offer_delete(request, offer_id):
         offer.delete()
         messages.success(request, "Offer deleted successfully!")
     return redirect("users:admin_offers")
+
+
+@user_passes_test(is_admin)
+def admin_products(request):
+    # Get filter parameters
+    search_query = request.GET.get('search', '')
+    category_id = request.GET.get('category', '')
+    
+    # Base queryset
+    products = Product.objects.select_related('category').prefetch_related('images').all()
+    
+    # Apply filters
+    if search_query:
+        products = products.filter(
+            Q(name__icontains=search_query) |
+            Q(sku__icontains=search_query)
+        )
+    
+    if category_id:
+        products = products.filter(category_id=category_id)
+    
+    # Get all categories for the filter dropdown
+    categories = Category.objects.filter(status=Category.StatusChoices.ACTIVE)
+    
+    context = {
+        'products': products,
+        'categories': categories,
+    }
+    return render(request, 'users/admin/products/index.html', context)
+
+
+@user_passes_test(is_admin)
+def admin_product_add(request):
+    if request.method == "POST":
+        # Basic product info
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        additional_details = request.POST.get('additional_details')
+        category_id = request.POST.get('category')
+        original_price = request.POST.get('original_price')
+        selling_price = request.POST.get('selling_price')
+        stock = request.POST.get('stock')
+        stock_unit = request.POST.get('stock_unit')
+        minimum_stock = request.POST.get('minimum_stock', 0)
+        sku = request.POST.get('sku')
+        is_active = request.POST.get('status') == 'active'
+        
+        # Create product
+        product = Product.objects.create(
+            name=name,
+            description=description,
+            additional_details=additional_details,
+            category_id=category_id,
+            original_price=original_price,
+            selling_price=selling_price,
+            stock=stock,
+            stock_unit=stock_unit,
+            minimum_stock=minimum_stock,
+            sku=sku,
+            is_active=is_active,
+            slug=slugify(name)  # You'll need to import slugify
+        )
+        
+        # Handle images
+        images = request.FILES.getlist('images')
+        for index, image in enumerate(images):
+            ProductImage.objects.create(
+                product=product,
+                image=image,
+                is_primary=(index == 0)  # First image is primary
+            )
+        
+        messages.success(request, "Product added successfully!")
+        return redirect('users:admin_products')
+    
+    categories = Category.objects.filter(status=Category.StatusChoices.ACTIVE)
+    context = {
+        'categories': categories,
+        'stock_units': Product.StockUnitChoices.choices,
+    }
+    return render(request, 'users/admin/products/add.html', context)
+
+
+@user_passes_test(is_admin)
+def admin_product_edit(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    
+    if request.method == "POST":
+        # Update basic info
+        product.name = request.POST.get('name')
+        product.description = request.POST.get('description')
+        product.additional_details = request.POST.get('additional_details')
+        product.category_id = request.POST.get('category')
+        product.original_price = request.POST.get('original_price')
+        product.selling_price = request.POST.get('selling_price')
+        product.stock = request.POST.get('stock')
+        product.stock_unit = request.POST.get('stock_unit')
+        product.minimum_stock = request.POST.get('minimum_stock', 0)
+        product.sku = request.POST.get('sku')
+        product.is_active = request.POST.get('status') == 'active'
+        product.slug = slugify(request.POST.get('name'))
+        
+        # Handle new images
+        new_images = request.FILES.getlist('images')
+        for image in new_images:
+            ProductImage.objects.create(
+                product=product,
+                image=image,
+                is_primary=not product.images.exists()  # Primary if no other images
+            )
+        
+        product.save()
+        messages.success(request, "Product updated successfully!")
+        return redirect('users:admin_products')
+    
+    categories = Category.objects.filter(status=Category.StatusChoices.ACTIVE)
+    context = {
+        'product': product,
+        'categories': categories,
+        'stock_units': Product.StockUnitChoices.choices,
+    }
+    return render(request, 'users/admin/products/edit.html', context)
+
+
+@user_passes_test(is_admin)
+def admin_product_view(request, product_id):
+    product = get_object_or_404(
+        Product.objects.select_related('category').prefetch_related('images', 'variants'),
+        id=product_id
+    )
+    context = {
+        'product': product,
+    }
+    return render(request, 'users/admin/products/detail.html', context)
+
+
+@user_passes_test(is_admin)
+def admin_product_delete(request, product_id):
+    if request.method == "POST":
+        product = get_object_or_404(Product, id=product_id)
+        product.delete()
+        messages.success(request, "Product deleted successfully!")
+    return redirect('users:admin_products')
+
+
+@user_passes_test(is_admin)
+def admin_product_image_delete(request, image_id):
+    if request.method == "POST":
+        image = get_object_or_404(ProductImage, id=image_id)
+        product_id = image.product.id
+        
+        # Don't delete if it's the only image
+        if image.product.images.count() > 1:
+            # If deleting primary image, make another image primary
+            if image.is_primary:
+                new_primary = image.product.images.exclude(id=image_id).first()
+                if new_primary:
+                    new_primary.is_primary = True
+                    new_primary.save()
+            
+            image.delete()
+            messages.success(request, "Product image deleted successfully!")
+        else:
+            messages.error(request, "Cannot delete the only product image!")
+            
+    return redirect('users:admin_product_edit', product_id=product_id)

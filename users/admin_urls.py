@@ -11,6 +11,12 @@ from users.views.admin_views import (
     admin_offer_add,
     admin_offer_edit,
     admin_offer_delete,
+    admin_products,
+    admin_product_add,
+    admin_product_view,
+    admin_product_edit,
+    admin_product_delete,
+    admin_product_image_delete,
 )
 
 urlpatterns = [
@@ -26,4 +32,10 @@ urlpatterns = [
     path("offers/add/", admin_offer_add, name="admin_offer_add"),
     path("offers/<int:offer_id>/edit/", admin_offer_edit, name="admin_offer_edit"),
     path("offers/<int:offer_id>/delete/", admin_offer_delete, name="admin_offer_delete"),
+    path('products/', admin_products, name='admin_products'),
+    path('products/add/', admin_product_add, name='admin_product_add'),
+    path('products/<int:product_id>/', admin_product_view, name='admin_product_view'),
+    path('products/<int:product_id>/edit/', admin_product_edit, name='admin_product_edit'),
+    path('products/<int:product_id>/delete/', admin_product_delete, name='admin_product_delete'),
+    path('products/images/<int:image_id>/delete/', admin_product_image_delete, name='admin_product_image_delete'),
 ]
