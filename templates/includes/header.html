@@ -84,6 +84,11 @@
                             <a href="{% url 'users:dashboard.index' %}" class="item channel_item">
                                 <i class="uil uil-apps icon__1"></i> Dashboard 
                             </a>
+                            {% if user.is_authenticated and user.is_superuser %}
+                                <a href="{% url 'users:admin.index' %}" class="item channel_item">
+                                    <i class="uil uil-apps icon__1"></i> Admin Dashboard 
+                                </a>
+                            {% endif %}
                             <a href="{% url 'users:dashboard.profile' %}" class="item channel_item">
                                 <i class="uil uil-user icon__1"></i> Profile 
                             </a>
