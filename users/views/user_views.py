@@ -200,6 +200,49 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         context["user"] = self.request.user
         return context
 
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        try:
+            # Get form data
+            name = request.POST.get('name')
+            email = request.POST.get('email')
+            phone = request.POST.get('phone')
+
+            # Update user information
+            if name:
+                user.name = name
+            if email and email != user.email:
+                # Check if email is already taken
+                if User.objects.filter(email=email).exclude(id=user.id).exists():
+                    messages.add_message(
+                        request, 
+                        ERROR, 
+                        "Email already exists",
+                        extra_tags="danger"
+                    )
+                    return self.render_to_response(self.get_context_data())
+                user.email = email
+            if phone:
+                user.phone = phone
+
+            user.save()
+            messages.add_message(
+                request,
+                SUCCESS,
+                "Profile updated successfully",
+                extra_tags="success"
+            )
+            return redirect('users:dashboard.profile')
+
+        except Exception as e:
+            messages.add_message(
+                request,
+                ERROR,
+                f"Error updating profile: {str(e)}",
+                extra_tags="danger"
+            )
+            return self.render_to_response(self.get_context_data())
+
 
 class OrderListView(LoginRequiredMixin, ListView):
     template_name = "users/dashboard/orders.html"
