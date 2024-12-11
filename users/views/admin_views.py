@@ -339,7 +339,7 @@ def admin_product_edit(request, product_id):
         product.stock_unit = request.POST.get('stock_unit')
         product.minimum_stock = request.POST.get('minimum_stock', 0)
         product.sku = request.POST.get('sku')
-        product.is_active = request.POST.get('status') == 'active'
+        product.is_active = request.POST.get('is_active') == 'on'
         product.slug = slugify(request.POST.get('name'))
         
         # Handle new images
