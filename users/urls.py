@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import (
+from .views.user_views import (
     DashboardView,
     UserLoginView,
     UserSignupView,
@@ -50,4 +50,5 @@ urlpatterns = [
             ]
         ),
     ),
+    path("admin/", include("users.admin_urls")),
 ]

@@ -18,8 +18,8 @@ from django.contrib.messages import SUCCESS, ERROR
 from orders.models import Order
 from wishlist.models import Wishlist
 from products.models import Product
-from .forms import UserLoginForm, UserRegistrationForm
-from .models import Address
+from users.forms import UserLoginForm, UserRegistrationForm
+from users.models import Address
 
 User = get_user_model()
 
