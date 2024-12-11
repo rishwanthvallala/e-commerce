@@ -1,8 +1,11 @@
 from django.db import models
+from django.contrib.auth import get_user_model
 from django_extensions.db.models import TimeStampedModel
 from users.models import User, Address
 from products.models import Product
 from decimal import Decimal
+
+User = get_user_model()
 
 
 class Order(TimeStampedModel):
@@ -19,7 +22,18 @@ class Order(TimeStampedModel):
         FAILED = "failed", "Failed"
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders")
-    address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True)
+    shipping_address = models.ForeignKey(
+        Address, 
+        on_delete=models.PROTECT,
+        related_name="shipping_orders"
+    )
+    billing_address = models.ForeignKey(
+        Address,
+        on_delete=models.PROTECT,
+        related_name="billing_orders",
+        null=True,
+        blank=True
+    )
     order_number = models.CharField(max_length=20, unique=True)
     status = models.CharField(
         max_length=20, choices=StatusChoices.choices, default=StatusChoices.PENDING

@@ -1,3 +1,4 @@
+import traceback
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
@@ -17,6 +18,9 @@ from orders.models import Order, OrderItem
 from users.models import Address
 from .models import Cart, CartItem
 from .serializers import CartSerializer
+from django.utils import timezone
+import random
+from decimal import Decimal
 
 logger = logging.getLogger(__name__)
 
@@ -174,121 +178,83 @@ def generate_order_number():
     return get_random_string(length=10, allowed_chars="0123456789")
 
 
-def create_order_from_cart(request, address_id, payment_method="cash_on_delivery"):
-    """Create a new order from cart items"""
-    try:
-        # Get cart
-        cart = Cart.objects.get(user=request.user)
-        cart_items = cart.items.select_related("product").all()
-
-        if not cart_items:
-            messages.error(request, "Your cart is empty")
-            logger.error("Cart is empty")
-            return None
-
-        # Calculate totals
-        total_amount = sum(item.subtotal for item in cart_items)
-        delivery_charge = 50.00
-
-        # Create order
-        order = Order.objects.create(
-            user=request.user,
-            address_id=address_id,
-            order_number=generate_order_number(),
-            total_amount=total_amount,
-            delivery_charge=delivery_charge,
-            payment_method=payment_method,
-        )
-
-        # Create order items
-        order_items = []
-        for cart_item in cart_items:
-            order_items.append(
-                OrderItem(
-                    order=order,
-                    product=cart_item.product,
-                    quantity=cart_item.quantity,
-                    price=cart_item.product.selling_price,
-                )
-            )
-
-        # Bulk create order items
-        OrderItem.objects.bulk_create(order_items)
-
-        # Clear cart
-        cart.items.all().delete()
-
-        logger.info("Order placed successfully")
-        messages.success(request, "Order placed successfully!")
-        return order
-
-    except Cart.DoesNotExist:
-        messages.error(request, "Cart not found")
-        logger.error("Cart not found")
-        return None
-    except Exception as e:
-        messages.error(request, f"Error placing order: {str(e)}")
-        logger.error(f"Error placing order: {str(e)}")
-        return None
-
-
-@login_required
-def checkout(request):
-    """Handle checkout process"""
-    if request.method == "POST":
-        address_id = request.POST.get("address_id")
-        payment_method = request.POST.get("payment_method", "cash_on_delivery")
-
-        if not address_id:
-            messages.error(request, "Please select a delivery address")
-            return redirect("cart:checkout")
-
-        order = create_order_from_cart(request, address_id, payment_method)
-        if order:
-            # Redirect to order success page
-            return redirect("orders:success", order_number=order.order_number)
-
-        return redirect("cart:checkout")
-
-    # Get user's addresses and cart items for the template
-    context = {
-        "addresses": Address.objects.filter(user=request.user),
-        "cart_items": CartItem.objects.filter(cart__user=request.user).select_related(
-            "product"
-        ),
-    }
-    return render(request, "cart/checkout.html", context)
-
-
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def place_order(request):
     """Handle order placement"""
     try:
-        data = request.data
-        address_id = data.get("address_id")
-        payment_method = data.get("payment_method", "cash_on_delivery")
-
-        if not address_id:
+        cart = request.user.cart
+        if not cart.items.exists():
             return Response(
-                {"error": "Please select a delivery address"},
+                {
+                    "error": "Your cart is empty!",
+                    "redirect_url": reverse("cart:cart_detail"),
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        order = create_order_from_cart(request, address_id, payment_method)
-        if order:
+        # Get selected addresses
+        shipping_address_id = request.data.get("shipping_address")
+        billing_address_id = request.data.get("billing_address")
+
+        if not shipping_address_id:
             return Response(
                 {
-                    "message": "Order placed successfully",
-                    "redirect_url": reverse(
-                        "orders:success", kwargs={"order_number": order.order_number}
-                    ),
-                }
+                    "error": "Please select a shipping address",
+                    "redirect_url": reverse("cart:checkout"),
+                },
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
-        return Response(
-            {"error": "Error placing order"}, status=status.HTTP_400_BAD_REQUEST
+        # Get addresses from database
+        shipping_address = Address.objects.get(
+            id=shipping_address_id, user=request.user
+        )
+        billing_address = shipping_address  # Default to shipping address
+
+        # If billing address is different
+        if billing_address_id and not request.data.get("same_as_shipping"):
+            billing_address = Address.objects.get(
+                id=billing_address_id, user=request.user
+            )
+
+        # Create order
+        order = Order.objects.create(
+            user=request.user,
+            shipping_address=shipping_address,
+            billing_address=billing_address,
+            order_number=f"ORD-{timezone.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}",
+            total_amount=cart.get_total(),
+            delivery_charge=Decimal("50.00"),
+            payment_method=request.data.get("payment_method", "cash_on_delivery"),
+            notes=request.data.get("notes", ""),
         )
 
+        # Create order items
+        for cart_item in cart.items.all():
+            OrderItem.objects.create(
+                order=order,
+                product=cart_item.product,
+                quantity=cart_item.quantity,
+                price=cart_item.product.selling_price,
+            )
+
+        # Clear cart
+        cart.items.all().delete()
+
+        messages.success(request, "Order placed successfully!")
+        return Response(
+            {
+                "message": "Order placed successfully",
+                "redirect_url": reverse(
+                    "orders:success", kwargs={"order_number": order.order_number}
+                ),
+            }
+        )
+    except Address.DoesNotExist:
+        return Response(
+            {"error": "Invalid address selected"}, status=status.HTTP_400_BAD_REQUEST
+        )
     except Exception as e:
+        traceback.print_exc()
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

@@ -301,7 +301,7 @@ document.getElementById('placeOrderBtn').addEventListener('click', function() {
     
     // Create form data
     const formData = {
-        address_id: selectedAddress.value,
+        shipping_address: selectedAddress.value,
         payment_method: selectedPayment ? selectedPayment.value : 'cash_on_delivery'
     };
 
@@ -342,6 +342,17 @@ document.getElementById('placeOrderBtn').addEventListener('click', function() {
             }
         });
     });
+});
+</script>
+<script>
+document.getElementById('same_as_shipping').addEventListener('change', function() {
+    const billingSection = document.getElementById('billing_address_section');
+    billingSection.style.display = this.checked ? 'none' : 'block';
+    
+    // Clear billing address selection when using shipping address
+    if (this.checked) {
+        document.querySelector('select[name="billing_address"]').value = '';
+    }
 });
 </script>
 {% endblock %} 

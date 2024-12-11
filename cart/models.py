@@ -8,7 +8,7 @@ from users.models import User
 
 
 class Cart(TimeStampedModel):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     @property
     def total_items(self):
@@ -17,6 +17,9 @@ class Cart(TimeStampedModel):
     @property
     def total_price(self):
         return sum(item.subtotal for item in self.items.all())
+
+    def get_total(self):
+        return self.total_price + Decimal("50.00")
 
 
 class CartItem(TimeStampedModel):

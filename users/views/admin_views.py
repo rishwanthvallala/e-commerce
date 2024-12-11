@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404, render
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils import timezone
 from django.db.models import Sum
 from django.db.models.functions import ExtractMonth
@@ -8,6 +8,10 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 
 from orders.models import Order
+
+
+def is_admin(user):
+    return user.is_authenticated and user.is_superuser
 
 
 @login_required
@@ -55,7 +59,9 @@ def admin_orders(request):
     status_filter = request.GET.get("status", "")
 
     # Base queryset
-    orders = Order.objects.select_related("user", "address").all()
+    orders = Order.objects.select_related(
+        "user", "shipping_address", "billing_address"
+    ).all()
 
     # Apply filters
     if search_query:
@@ -80,14 +86,25 @@ def admin_orders(request):
         "status_choices": Order.StatusChoices.choices,
     }
 
-    return render(request, "users/admin/orders.html", context)
+    return render(request, "users/admin/orders/index.html", context)
 
 
+@login_required
+@user_passes_test(is_admin)
 def admin_order_detail(request, order_id):
-    order = get_object_or_404(Order, id=order_id)
-    return render(request, "users/admin/order_detail.html", {"order": order})
+    order = get_object_or_404(
+        Order.objects.select_related(
+            "shipping_address", "billing_address", "user"
+        ).prefetch_related("items", "items__product"),
+        id=order_id,
+    )
+
+    context = {
+        "order": order,
+    }
+    return render(request, "users/admin/orders/detail.html", context)
 
 
 def admin_order_edit(request, order_id):
     order = get_object_or_404(Order, id=order_id)
-    return render(request, "users/admin/order_edit.html", {"order": order})
+    return render(request, "users/admin/orders/edit.html", {"order": order})
