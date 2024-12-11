@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils import timezone
 from django.db.models import Sum
@@ -6,7 +6,9 @@ from django.db.models.functions import ExtractMonth
 from calendar import month_name
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.contrib import messages
 
+from categories.models import Category
 from orders.models import Order
 
 
@@ -108,3 +110,47 @@ def admin_order_detail(request, order_id):
 def admin_order_edit(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     return render(request, "users/admin/orders/edit.html", {"order": order})
+
+
+@user_passes_test(is_admin)
+def admin_categories(request):
+    categories = Category.objects.all()
+    context = {"categories": categories}
+    return render(request, "users/admin/categories/index.html", context)
+
+
+@user_passes_test(is_admin)
+def admin_category_add(request):
+    if request.method == "POST":
+        name = request.POST.get("name")
+        description = request.POST.get("description")
+        status = request.POST.get("status")
+        image = request.FILES.get("image")
+
+        category = Category.objects.create(
+            name=name, description=description, status=status, image=image
+        )
+        messages.success(request, "Category added successfully!")
+        return redirect("admin_categories")
+
+    return render(request, "users/admin/categories/add.html")
+
+
+@user_passes_test(is_admin)
+def admin_category_edit(request, category_id):
+    category = get_object_or_404(Category, id=category_id)
+
+    if request.method == "POST":
+        category.name = request.POST.get("name")
+        category.description = request.POST.get("description")
+        category.status = request.POST.get("status")
+
+        if "image" in request.FILES:
+            category.image = request.FILES["image"]
+
+        category.save()
+        messages.success(request, "Category updated successfully!")
+        return redirect("admin_categories")
+
+    context = {"category": category}
+    return render(request, "users/admin/categories/edit.html", context)

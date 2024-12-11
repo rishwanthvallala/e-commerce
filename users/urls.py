@@ -16,6 +16,7 @@ from .views.user_views import (
     toggle_wishlist,
 )
 from django.views.decorators.http import require_http_methods
+from .views import admin_views
 
 app_name = "users"
 
