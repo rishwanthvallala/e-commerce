@@ -1,37 +1,43 @@
 <div class="product-item">
-    <a href="{% url 'products:detail' product.slug %}" class="product-img">
-        {% if product.primary_image %}
-            <img src="{{ product.primary_image.image.url }}" alt="{{ product.name }}">
-        {% else %}
-            <img src="https://placehold.co/400x400?text=No+Image" alt="{{ product.name }}">
-        {% endif %}
-        <div class="product-absolute-options">
-            {% if product.discount_percentage > 0 %}
-                <span class="offer-badge-1">{{ product.discount_percentage }}% off</span>
+    <div class="product-card">
+        <a href="{% url 'products:detail' product.slug %}" class="product-img">
+            {% if product.primary_image %}
+                <img src="{{ product.primary_image.image.url }}" alt="{{ product.name }}">
+            {% else %}
+                <img src="https://placehold.co/400x400?text=No+Image" alt="{{ product.name }}">
             {% endif %}
-            <span class="like-icon" title="wishlist"></span>
-        </div>
-    </a>
-    <div class="product-text-dt">
-        {% if product.stock <= 0 %}
-            <p>Not Available <span>(Out Of Stock)</span></p>
-        {% else %}
-            <p>Available <span>(In Stock)</span></p>
-        {% endif %}
-        <h4>{{ product.name }}</h4>
-        <div class="product-price">
-            ৳<span class="sell_price">{{ product.selling_price }}</span>
-            <span class="line-through">৳{{ product.original_price }}</span>
-        </div>
-        <div class="qty-cart">
-            <div class="quantity buttons_added">
-                <input type="button" value="-" class="minus minus-btn">
-                <input type="number" step="1" name="quantity" min="1" value="1" class="input-text qty text">
-                <input type="button" value="+" class="plus plus-btn">
+            {% if product.discount_percentage > 0 %}
+                <div class="discount-badge">-{{ product.discount_percentage }}%</div>
+            {% endif %}
+        </a>
+        
+        <div class="product-content">
+            <div class="stock-status {% if product.stock <= 0 %}out-of-stock{% endif %}">
+                {% if product.stock <= 0 %}
+                    <i class="uil uil-times-circle"></i> Out of Stock
+                {% else %}
+                    <i class="uil uil-check-circle"></i> In Stock
+                {% endif %}
             </div>
-            <span class="cart-icon add-to-cart" data-id="{{ product.id }}">
-                <i class="uil uil-shopping-cart-alt"></i>
-            </span>
+            
+            <h4 class="product-title">{{ product.name }}</h4>
+            
+            <div class="product-price">
+                <div class="current-price">৳{{ product.selling_price }}</div>
+                {% if product.discount_percentage > 0 %}
+                    <div class="original-price">৳{{ product.original_price }}</div>
+                {% endif %}
+            </div>
+
+            <div class="product-actions">
+                <button type="button" class="add-to-cart-btn" data-id="{{ product.id }}">
+                    <i class="uil uil-shopping-cart-alt"></i>
+                    Add to Cart
+                </button>
+                <button type="button" class="wishlist-btn" title="Add to Wishlist">
+                    <i class="uil uil-heart"></i>
+                </button>
+            </div>
         </div>
     </div>
 </div>
