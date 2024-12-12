@@ -45,7 +45,7 @@
 
 </head>
 
-<body>
+<body data-auth="{{ request.user.is_authenticated|lower }}">
 <!-- start per-loader -->
 <div class="loader-container">
     <div class="loader-ripple">

@@ -1,3 +1,5 @@
+const isAuthenticated = document.body.dataset.auth === 'true';
+
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -81,6 +83,9 @@ function updateCartDisplay(cartData) {
 }
 
 function fetchCartItems() {
+    if (!isAuthenticated) {
+        return;
+    }
     fetch('/cart/api/list/')
         .then(response => response.json())
         .then(data => {
@@ -103,9 +108,29 @@ document.addEventListener('DOMContentLoaded', function() {
     fetchCartItems();
     
     // Setup add to cart button
-    const addToCartBtn = document.querySelector('.add-cart-btn');
+    const addToCartBtn = document.querySelector('.add-cart-btn') || document.querySelector('.add-to-cart-btn');
     if (addToCartBtn) {
         addToCartBtn.addEventListener('click', function() {
+            if (!isAuthenticated) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Please Login',
+                    text: 'You need to login first to add items to cart',
+                    showCancelButton: true,
+                    confirmButtonText: 'Login',
+                    cancelButtonText: 'Cancel',
+                    customClass: {
+                        container: 'swal-container-class',
+                        popup: 'swal-popup-class'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '/users/login/';
+                    }
+                });
+                return;
+            }
+
             const productId = this.dataset.product;
             const quantityInput = document.querySelector('.qty.text');
             const quantity = parseInt(quantityInput.value);
