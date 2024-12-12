@@ -23,16 +23,14 @@ class Order(TimeStampedModel):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders")
     shipping_address = models.ForeignKey(
-        Address, 
-        on_delete=models.PROTECT,
-        related_name="shipping_orders"
+        Address, on_delete=models.PROTECT, related_name="shipping_orders"
     )
     billing_address = models.ForeignKey(
         Address,
         on_delete=models.PROTECT,
         related_name="billing_orders",
         null=True,
-        blank=True
+        blank=True,
     )
     order_number = models.CharField(max_length=20, unique=True)
     status = models.CharField(

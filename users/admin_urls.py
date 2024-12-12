@@ -25,9 +25,9 @@ urlpatterns = [
     path("orders/<int:order_id>/", admin_order_detail, name="admin.order_detail"),
     path("orders/<int:order_id>/edit/", admin_order_edit, name="admin.order_edit"),
     
-    path('admin/categories/', admin_categories, name='admin_categories'),
-    path('admin/categories/add/', admin_category_add, name='admin_category_add'),
-    path('admin/categories/<int:category_id>/edit/', admin_category_edit, name='admin_category_edit'),
+    path('categories/', admin_categories, name='admin_categories'),
+    path('categories/add/', admin_category_add, name='admin_category_add'),
+    path('categories/<int:category_id>/edit/', admin_category_edit, name='admin_category_edit'),
     path("offers/", admin_offers, name="admin_offers"),
     path("offers/add/", admin_offer_add, name="admin_offer_add"),
     path("offers/<int:offer_id>/edit/", admin_offer_edit, name="admin_offer_edit"),
