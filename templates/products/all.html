@@ -19,6 +19,25 @@
         .no-products p {
             color: #999;
         }
+
+        .add-to-cart-btn {
+            margin-left: 10px;
+            flex: 1;
+            background: #2b2f4c;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .add-to-cart-btn:hover {
+            background: #1f2238;
+        }
     </style>
 {% endblock %}
 
@@ -84,7 +103,10 @@
                                                 <input type="number" step="1" name="quantity" value="1" class="input-text qty text">
                                                 <input type="button" value="+" class="plus plus-btn">
                                             </div>
-                                            <span class="cart-icon"><i class="uil uil-shopping-cart-alt"></i></span>
+                                            <button type="button" class="add-to-cart-btn" data-product="{{ product.id }}">
+                                                <i class="uil uil-shopping-cart-alt"></i>
+                                                Add to Cart
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
