@@ -14,11 +14,23 @@ class ProductListView(ListView):
     context_object_name = "products"
     paginate_by = 10
 
+    SORT_OPTIONS = {
+        'price_asc': 'selling_price',
+        'price_desc': '-selling_price',
+        'name': 'name',
+        'default': '-created'
+    }
+
     def get_queryset(self):
         queryset = super().get_queryset()
+        
+        # Apply sorting
+        sort_param = self.request.GET.get('sort', 'default')
+        order_by = self.SORT_OPTIONS.get(sort_param, self.SORT_OPTIONS['default'])
+        queryset = queryset.order_by(order_by)
 
+        # Add wishlist annotation
         if self.request.user.is_authenticated:
-            # Annotate products with wishlist status for the current user
             queryset = queryset.annotate(
                 is_wishlisted=Exists(
                     Wishlist.objects.filter(
@@ -27,7 +39,6 @@ class ProductListView(ListView):
                 )
             )
         else:
-            # For unauthenticated users, set is_wishlisted to False
             queryset = queryset.annotate(
                 is_wishlisted=Value(False, output_field=models.BooleanField())
             )
@@ -37,6 +48,7 @@ class ProductListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = "All Products"
+        context["sort"] = self.request.GET.get('sort', 'default')
         return context
 
 

@@ -747,3 +747,16 @@ function addToCart(productId, quantity = 1) {
         }
     });
 }
+
+// Product sorting
+document.addEventListener('DOMContentLoaded', function() {
+    const sortDropdown = document.querySelector('.vchrt-dropdown');
+    if (sortDropdown) {
+        sortDropdown.addEventListener('change', function(e) {
+            const sortValue = e.target.value;
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('sort', sortValue);
+            window.location.href = currentUrl.toString();
+        });
+    }
+});

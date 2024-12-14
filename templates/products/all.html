@@ -51,17 +51,27 @@
                             <div class="product-left-title">
                                 <h2>{{ title }}</h2>
                             </div>
-                            <a href="#" class="filter-btn pull-bs-canvas-right">Filters</a>
+                            <a href="#" class="filter-btn">Filters</a>
                             <div class="product-sort">
                                 <div class="ui selection dropdown vchrt-dropdown">
-                                    <input name="sort" type="hidden" value="default">
+                                    <input name="sort" type="hidden" value="{{ sort }}">
                                     <i class="dropdown icon d-icon"></i>
-                                    <div class="text">Popularity</div>
+                                    <div class="text">
+                                        {% if sort == 'price_asc' %}
+                                            Price - Low to High
+                                        {% elif sort == 'price_desc' %}
+                                            Price - High to Low
+                                        {% elif sort == 'name' %}
+                                            Alphabetical
+                                        {% else %}
+                                            Popularity
+                                        {% endif %}
+                                    </div>
                                     <div class="menu">
-                                        <div class="item" data-value="popularity">Popularity</div>
-                                        <div class="item" data-value="price_asc">Price - Low to High</div>
-                                        <div class="item" data-value="price_desc">Price - High to Low</div>
-                                        <div class="item" data-value="name">Alphabetical</div>
+                                        <div class="item {% if sort == 'default' %}active selected{% endif %}" data-value="default">Popularity</div>
+                                        <div class="item {% if sort == 'price_asc' %}active selected{% endif %}" data-value="price_asc">Price - Low to High</div>
+                                        <div class="item {% if sort == 'price_desc' %}active selected{% endif %}" data-value="price_desc">Price - High to Low</div>
+                                        <div class="item {% if sort == 'name' %}active selected{% endif %}" data-value="name">Alphabetical</div>
                                     </div>
                                 </div>
                             </div>
