@@ -108,80 +108,82 @@ document.addEventListener('DOMContentLoaded', function() {
     fetchCartItems();
     
     // Setup add to cart button
-    const addToCartBtn = document.querySelector('.add-cart-btn') || document.querySelector('.add-to-cart-btn');
-    if (addToCartBtn) {
-        addToCartBtn.addEventListener('click', function() {
-            if (!isAuthenticated) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Please Login',
-                    text: 'You need to login first to add items to cart',
-                    showCancelButton: true,
-                    confirmButtonText: 'Login',
-                    cancelButtonText: 'Cancel',
-                    customClass: {
-                        container: 'swal-container-class',
-                        popup: 'swal-popup-class'
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = '/users/login/';
-                    }
-                });
-                return;
-            }
+    const addToCartBtns = document.querySelectorAll('.add-cart-btn, .add-to-cart-btn');
+    if (addToCartBtns.length > 0) {
+        addToCartBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (!isAuthenticated) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Please Login',
+                        text: 'You need to login first to add items to cart',
+                        showCancelButton: true,
+                        confirmButtonText: 'Login',
+                        cancelButtonText: 'Cancel',
+                        customClass: {
+                            container: 'swal-container-class',
+                            popup: 'swal-popup-class'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = '/users/login/';
+                        }
+                    });
+                    return;
+                }
 
-            const productId = this.dataset.product;
-            const quantityInput = document.querySelector('.qty.text');
-            const quantity = parseInt(quantityInput.value);
+                const productId = this.dataset.product;
+                const quantityInput = this.closest('.product-item')?.querySelector('.qty.text');
+                const quantity = parseInt(quantityInput?.value || 1);
 
-            fetch('/cart/api/add/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: JSON.stringify({
-                    product_id: productId,
-                    quantity: quantity
+                fetch('/cart/api/add/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        product_id: productId,
+                        quantity: quantity
+                    })
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: data.error,
+                            customClass: {
+                                container: 'swal-container-class',
+                                popup: 'swal-popup-class'
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: 'Item added to cart',
+                            timer: 1500,
+                            customClass: {
+                                container: 'swal-container-class',
+                                popup: 'swal-popup-class'
+                            }
+                        });
+                        updateCartCount(data.cart_total);
+                        fetchCartItems(); // Refresh cart display
+                    }
+                })
+                .catch(error => {
                     Swal.fire({
                         icon: 'error',
                         title: 'Oops...',
-                        text: data.error,
+                        text: 'Something went wrong! Please try again.',
                         customClass: {
                             container: 'swal-container-class',
                             popup: 'swal-popup-class'
                         }
                     });
-                } else {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success!',
-                        text: 'Item added to cart',
-                        timer: 1500,
-                        customClass: {
-                            container: 'swal-container-class',
-                            popup: 'swal-popup-class'
-                        }
-                    });
-                    updateCartCount(data.cart_total);
-                    fetchCartItems(); // Refresh cart display
-                }
-            })
-            .catch(error => {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Something went wrong! Please try again.',
-                    customClass: {
-                        container: 'swal-container-class',
-                        popup: 'swal-popup-class'
-                    }
                 });
             });
         });
