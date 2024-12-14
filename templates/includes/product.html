@@ -34,7 +34,8 @@
                     <i class="uil uil-shopping-cart-alt"></i>
                     Add to Cart
                 </button>
-                <button type="button" class="wishlist-btn" title="Add to Wishlist" data-product="{{ product.id }}">
+                <button type="button" class="wishlist-btn {% if product.is_wishlisted %}active{% endif %}" 
+                        title="Add to Wishlist" data-product="{{ product.id }}">
                     <i class="uil uil-heart"></i>
                 </button>
             </div>
