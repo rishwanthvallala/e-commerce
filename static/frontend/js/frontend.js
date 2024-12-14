@@ -381,6 +381,11 @@ $(document).ready(function() {
             error: function (data) {}
         })
 	});
+
+    $document.on('click', '.wishlist-btn', function(e) {
+        var product_id = $(this).attr("data-product");
+        toggleWishlist(this, product_id);
+    });
     
     // $document.on('click','.like-icon, .like-button', function(e) {
 	// 	e.preventDefault();
