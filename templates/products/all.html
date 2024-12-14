@@ -84,7 +84,7 @@
                                             {% if product.discount_percentage > 0 %}
                                                 <span class="offer-badge-1">{{ product.discount_percentage }}% off</span>
                                             {% endif %}
-                                            <span class="like-icon" title="wishlist"></span>
+                                            <span class="like-icon wishlist-btn {% if product.is_wishlisted %}liked{% endif %}" title="wishlist" data-product="{{ product.id }}"></span>
                                         </div>
                                     </a>
                                     <div class="product-text-dt">

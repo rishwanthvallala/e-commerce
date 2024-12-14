@@ -383,8 +383,21 @@ $(document).ready(function() {
 	});
 
     $document.on('click', '.wishlist-btn', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
         var product_id = $(this).attr("data-product");
         toggleWishlist(this, product_id);
+
+        let wishlist_count = parseInt($('.noti_count1').html());
+        if($(this).hasClass('liked')){
+            if (wishlist_count > 0) {
+                wishlist_count--;
+            }
+        } else {
+            wishlist_count++;
+        }
+        $('.noti_count1').html(wishlist_count);
     });
     
     // $document.on('click','.like-icon, .like-button', function(e) {

@@ -1,9 +1,11 @@
 from django.http import Http404
 from django.views.generic import ListView, DetailView
-from django.db.models import Q
+from django.db.models import Exists, OuterRef, Value
+from django.db import models
 
-from .models import Product
 from categories.models import Category
+from wishlist.models import Wishlist
+from .models import Product
 
 
 class ProductListView(ListView):
@@ -11,6 +13,26 @@ class ProductListView(ListView):
     template_name = "products/all.html"
     context_object_name = "products"
     paginate_by = 10
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        if self.request.user.is_authenticated:
+            # Annotate products with wishlist status for the current user
+            queryset = queryset.annotate(
+                is_wishlisted=Exists(
+                    Wishlist.objects.filter(
+                        user=self.request.user, product=OuterRef("pk")
+                    )
+                )
+            )
+        else:
+            # For unauthenticated users, set is_wishlisted to False
+            queryset = queryset.annotate(
+                is_wishlisted=Value(False, output_field=models.BooleanField())
+            )
+
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
