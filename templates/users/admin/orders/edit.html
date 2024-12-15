@@ -17,6 +17,9 @@
                     <div class="card-title-2">
                         <h2 class="title1458">Invoice</h2>
                         <span class="order-id">Order #{{ order.order_number }}</span>
+                        <a href="{% url 'users:admin.orders.pdf' order.id %}" class="btn btn-primary float-right ml-2">
+                            <i class="uil uil-download-alt"></i> Download PDF
+                        </a>
                     </div>
                     <div class="invoice-content">
                         <div class="row">

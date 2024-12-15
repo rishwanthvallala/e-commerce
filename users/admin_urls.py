@@ -18,6 +18,7 @@ from users.views.admin_views import (
     admin_product_delete,
     admin_product_image_delete,
     update_order_status,
+    generate_order_pdf,
 )
 
 urlpatterns = [
@@ -59,4 +60,5 @@ urlpatterns = [
         admin_product_image_delete,
         name="admin_product_image_delete",
     ),
+    path('orders/<int:order_id>/pdf/', generate_order_pdf, name='admin.orders.pdf'),
 ]
