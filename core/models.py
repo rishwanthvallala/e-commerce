@@ -32,3 +32,21 @@ class SiteSettings(models.Model):
     def load(cls):
         obj, created = cls.objects.get_or_create(pk=1)
         return obj
+
+    def update_general_settings(self, **kwargs):
+        for key, value in kwargs.items():
+            if value is not None:  # Only update if value is provided
+                setattr(self, key, value)
+        self.save()
+
+    def update_payment_settings(self, **kwargs):
+        for key, value in kwargs.items():
+            if value is not None:  # Only update if value is provided
+                setattr(self, key, value)
+        self.save()
+
+    def update_email_settings(self, **kwargs):
+        for key, value in kwargs.items():
+            if value is not None:  # Only update if value is provided
+                setattr(self, key, value)
+        self.save()
