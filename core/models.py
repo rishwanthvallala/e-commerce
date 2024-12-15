@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 CURRENCY_CHOICES = [
     ("BDT", "Bangladeshi Taka"),
@@ -27,6 +28,11 @@ class SiteSettings(models.Model):
     smtp_user = models.CharField(max_length=255, null=True, blank=True)
     smtp_password = models.CharField(max_length=255, null=True, blank=True)
     email_from = models.EmailField(null=True, blank=True)
+
+    # Privacy Settings
+    privacy_last_updated = models.DateField(default=timezone.now)
+    # Terms Settings
+    terms_last_updated = models.DateField(default=timezone.now)
 
     @classmethod
     def load(cls):

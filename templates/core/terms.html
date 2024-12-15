@@ -22,13 +22,158 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
-                    <div class="terms-content">
-                        <h2>Terms and Conditions</h2>
-                        <!-- Add your terms content here -->
+                    <div class="terms-content-wrapper">
+                        <h2>Terms & Conditions</h2>
+                        <p class="last-updated">Last updated: {{ settings.privacy_last_updated|date:"F d, Y" }}</p>
+
+                        <section class="terms-section">
+                            <h3>1. Agreement to Terms</h3>
+                            <p>By accessing and using {{ settings.site_name }}, you agree to be bound by these Terms and Conditions. If you do not agree to these terms, please do not use our services.</p>
+                        </section>
+
+                        <section class="terms-section">
+                            <h3>2. Use of Our Services</h3>
+                            <p>When using our services, you agree to:</p>
+                            <ul>
+                                <li>Provide accurate and complete information</li>
+                                <li>Maintain the security of your account</li>
+                                <li>Not use the service for any illegal purposes</li>
+                                <li>Not interfere with the proper working of the service</li>
+                                <li>Accept responsibility for all activities under your account</li>
+                            </ul>
+                        </section>
+
+                        <section class="terms-section">
+                            <h3>3. Orders and Payments</h3>
+                            <p>By placing an order, you agree that:</p>
+                            <ul>
+                                <li>All order information provided is accurate and complete</li>
+                                <li>You will pay all charges at the prices in effect when incurred</li>
+                                <li>You will pay using an authorized payment method</li>
+                                <li>We reserve the right to refuse or cancel any orders</li>
+                                <li>Prices and availability are subject to change without notice</li>
+                            </ul>
+                        </section>
+
+                        <section class="terms-section">
+                            <h3>4. Shipping and Delivery</h3>
+                            <p>Our delivery terms include:</p>
+                            <ul>
+                                <li>Delivery times are estimates and not guaranteed</li>
+                                <li>Risk of loss passes to you upon delivery</li>
+                                <li>You must inspect products upon delivery</li>
+                                <li>Additional charges may apply for certain locations</li>
+                                <li>We are not responsible for delays beyond our control</li>
+                            </ul>
+                        </section>
+
+                        <section class="terms-section">
+                            <h3>5. Returns and Refunds</h3>
+                            <p>Our return policy states:</p>
+                            <ul>
+                                <li>Returns must be initiated within 7 days of delivery</li>
+                                <li>Products must be unused and in original packaging</li>
+                                <li>Shipping costs for returns are customer's responsibility</li>
+                                <li>Refunds will be processed within 14 business days</li>
+                                <li>Some items are not eligible for return</li>
+                            </ul>
+                        </section>
+
+                        <section class="terms-section">
+                            <h3>6. Intellectual Property</h3>
+                            <p>All content on this site is protected by:</p>
+                            <ul>
+                                <li>Copyright laws</li>
+                                <li>Trademark rights</li>
+                                <li>Other proprietary rights</li>
+                                <li>You may not copy or use our content without permission</li>
+                            </ul>
+                        </section>
+
+                        <section class="terms-section">
+                            <h3>7. Limitation of Liability</h3>
+                            <p>We will not be liable for:</p>
+                            <ul>
+                                <li>Indirect or consequential damages</li>
+                                <li>Lost profits or business interruption</li>
+                                <li>Data loss or corruption</li>
+                                <li>Technical failures or security breaches</li>
+                            </ul>
+                        </section>
+
+                        <section class="terms-section">
+                            <h3>8. Contact Information</h3>
+                            <p>For questions about these Terms & Conditions, please contact us at:</p>
+                            <div class="contact-info">
+                                <p>Email: {{ settings.contact_email }}</p>
+                                <p>Phone: {{ settings.contact_phone }}</p>
+                                <p>Address: {{ settings.address }}</p>
+                            </div>
+                        </section>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+.terms-content-wrapper {
+    padding: 30px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.terms-content-wrapper h2 {
+    color: #2b2f4c;
+    margin-bottom: 20px;
+    font-size: 28px;
+}
+
+.last-updated {
+    color: #666;
+    font-style: italic;
+    margin-bottom: 30px;
+}
+
+.terms-section {
+    margin-bottom: 30px;
+}
+
+.terms-section h3 {
+    color: #2b2f4c;
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+.terms-section p {
+    color: #3e3f5e;
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+
+.terms-section ul {
+    list-style-type: disc;
+    margin-left: 20px;
+    margin-bottom: 15px;
+}
+
+.terms-section ul li {
+    color: #3e3f5e;
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.contact-info {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 5px;
+    margin-top: 15px;
+}
+
+.contact-info p {
+    margin-bottom: 10px;
+}
+</style>
 {% endblock %} 
