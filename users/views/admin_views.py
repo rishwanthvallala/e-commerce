@@ -552,7 +552,7 @@ def admin_customers(request):
     customers = User.objects.annotate(
         order_count=Count('orders'),
         total_spent=Sum('orders__total_amount', filter=Q(orders__status='delivered'))
-    ).filter(is_superuser=False)
+    )
     
     # Apply search filter
     if search_query:
@@ -582,7 +582,6 @@ def admin_customer_detail(request, user_id):
             total_spent=Sum('orders__total_amount', filter=Q(orders__status='delivered'))
         ),
         id=user_id,
-        is_superuser=False
     )
     
     orders = Order.objects.filter(user=customer).order_by('-created')
