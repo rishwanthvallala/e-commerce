@@ -1,0 +1,38 @@
+# Python source files
+*.py linguist-language=Python
+*.pyw linguist-language=Python
+
+# Django templates
+*.html linguist-language=Django HTML
+*.htm linguist-language=Django HTML
+
+# Static files
+*.js linguist-vendored
+*.css linguist-vendored
+*.scss linguist-vendored
+*.less linguist-vendored
+
+# Documentation
+*.md linguist-documentation
+*.rst linguist-documentation
+
+# Exclude vendor directories
+static/vendor/* linguist-vendored
+static/admin/* linguist-vendored
+
+# Treat migrations as generated code
+*/migrations/* linguist-generated=true
+
+# Enforce Unix line endings
+* text=auto eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary 
