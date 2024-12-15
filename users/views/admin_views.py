@@ -16,10 +16,12 @@ from reportlab.platypus import Table, TableStyle
 from io import BytesIO
 
 from categories.models import Category
+from core.models import CURRENCY_CHOICES
 from orders.models import Order
 from offers.models import Offer
 from products.models import Product, ProductImage
 from users.models import User
+from core.models import SiteSettings
 
 
 def is_admin(user):
@@ -546,31 +548,28 @@ def generate_order_pdf(request, order_id):
 @login_required
 @user_passes_test(is_admin)
 def admin_customers(request):
-    search_query = request.GET.get('search', '')
-    
+    search_query = request.GET.get("search", "")
+
     # Base queryset with annotated order count and total spent
     customers = User.objects.annotate(
-        order_count=Count('orders'),
-        total_spent=Sum('orders__total_amount', filter=Q(orders__status='delivered'))
+        order_count=Count("orders"),
+        total_spent=Sum("orders__total_amount", filter=Q(orders__status="delivered")),
     )
-    
+
     # Apply search filter
     if search_query:
         customers = customers.filter(
-            Q(name__icontains=search_query) |
-            Q(email__icontains=search_query) |
-            Q(phone__icontains=search_query)
+            Q(name__icontains=search_query)
+            | Q(email__icontains=search_query)
+            | Q(phone__icontains=search_query)
         )
-    
+
     paginator = Paginator(customers, 10)
-    page_number = request.GET.get('page', 1)
+    page_number = request.GET.get("page", 1)
     customers_page = paginator.get_page(page_number)
-    
-    context = {
-        'customers': customers_page,
-        'search_query': search_query
-    }
-    return render(request, 'users/admin/customers/index.html', context)
+
+    context = {"customers": customers_page, "search_query": search_query}
+    return render(request, "users/admin/customers/index.html", context)
 
 
 @login_required
@@ -578,16 +577,89 @@ def admin_customers(request):
 def admin_customer_detail(request, user_id):
     customer = get_object_or_404(
         User.objects.annotate(
-            order_count=Count('orders'),
-            total_spent=Sum('orders__total_amount', filter=Q(orders__status='delivered'))
+            order_count=Count("orders"),
+            total_spent=Sum(
+                "orders__total_amount", filter=Q(orders__status="delivered")
+            ),
         ),
         id=user_id,
     )
-    
-    orders = Order.objects.filter(user=customer).order_by('-created')
-    
-    context = {
-        'customer': customer,
-        'orders': orders
-    }
-    return render(request, 'users/admin/customers/detail.html', context)
+
+    orders = Order.objects.filter(user=customer).order_by("-created")
+
+    context = {"customer": customer, "orders": orders}
+    return render(request, "users/admin/customers/detail.html", context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def admin_general_settings(request):
+    if request.method == "POST":
+        site_name = request.POST.get("site_name")
+        site_logo = request.FILES.get("site_logo")
+        favicon = request.FILES.get("favicon")
+        contact_email = request.POST.get("contact_email")
+        contact_phone = request.POST.get("contact_phone")
+        address = request.POST.get("address")
+
+        settings = SiteSettings.load()
+        settings.update_general_settings(
+            site_name=site_name,
+            site_logo=site_logo,
+            favicon=favicon,
+            contact_email=contact_email,
+            contact_phone=contact_phone,
+            address=address,
+        )
+        messages.success(request, "General settings updated successfully")
+
+    context = {"settings": SiteSettings.load()}
+    return render(request, "users/admin/settings/general.html", context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def admin_payment_settings(request):
+    if request.method == "POST":
+        stripe_public_key = request.POST.get("stripe_public_key")
+        stripe_secret_key = request.POST.get("stripe_secret_key")
+        paypal_client_id = request.POST.get("paypal_client_id")
+        paypal_secret = request.POST.get("paypal_secret")
+        currency = request.POST.get("currency")
+
+        settings = SiteSettings.load()
+        settings.update_payment_settings(
+            stripe_public_key=stripe_public_key,
+            stripe_secret_key=stripe_secret_key,
+            paypal_client_id=paypal_client_id,
+            paypal_secret=paypal_secret,
+            currency=currency,
+        )
+        messages.success(request, "Payment settings updated successfully")
+
+    context = {"settings": SiteSettings.load(), "currencies": CURRENCY_CHOICES}
+    return render(request, "users/admin/settings/payment.html", context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def admin_email_settings(request):
+    if request.method == "POST":
+        smtp_host = request.POST.get("smtp_host")
+        smtp_port = request.POST.get("smtp_port")
+        smtp_user = request.POST.get("smtp_user")
+        smtp_password = request.POST.get("smtp_password")
+        email_from = request.POST.get("email_from")
+
+        settings = SiteSettings.load()
+        settings.update_email_settings(
+            smtp_host=smtp_host,
+            smtp_port=smtp_port,
+            smtp_user=smtp_user,
+            smtp_password=smtp_password,
+            email_from=email_from,
+        )
+        messages.success(request, "Email settings updated successfully")
+
+    context = {"settings": SiteSettings.load()}
+    return render(request, "users/admin/settings/email.html", context)

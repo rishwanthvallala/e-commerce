@@ -21,6 +21,9 @@ from users.views.admin_views import (
     generate_order_pdf,
     admin_customers,
     admin_customer_detail,
+    admin_general_settings,
+    admin_payment_settings,
+    admin_email_settings,
 )
 
 urlpatterns = [
@@ -65,4 +68,7 @@ urlpatterns = [
     path('orders/<int:order_id>/pdf/', generate_order_pdf, name='admin.orders.pdf'),
     path('customers/', admin_customers, name='admin.customers'),
     path('customers/<int:user_id>/', admin_customer_detail, name='admin.customer_detail'),
+    path('settings/general/', admin_general_settings, name='admin.settings.general'),
+    path('settings/payment/', admin_payment_settings, name='admin.settings.payment'),
+    path('settings/email/', admin_email_settings, name='admin.settings.email'),
 ]
