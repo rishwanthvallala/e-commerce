@@ -58,6 +58,10 @@ class Order(TimeStampedModel):
     def grand_total(self):
         return self.total_amount + self.delivery_charge
 
+    @property
+    def readable_payment_method(self):
+        return self.payment_method.replace("_", " ").title()
+
 
 class OrderItem(TimeStampedModel):
     order = models.ForeignKey(Order, related_name="items", on_delete=models.CASCADE)
