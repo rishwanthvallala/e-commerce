@@ -17,6 +17,7 @@ from users.views.admin_views import (
     admin_product_edit,
     admin_product_delete,
     admin_product_image_delete,
+    update_order_status,
 )
 
 urlpatterns = [
@@ -24,18 +25,38 @@ urlpatterns = [
     path("orders/", admin_orders, name="admin.orders"),
     path("orders/<int:order_id>/", admin_order_detail, name="admin.order_detail"),
     path("orders/<int:order_id>/edit/", admin_order_edit, name="admin.order_edit"),
-    
-    path('categories/', admin_categories, name='admin_categories'),
-    path('categories/add/', admin_category_add, name='admin_category_add'),
-    path('categories/<int:category_id>/edit/', admin_category_edit, name='admin_category_edit'),
+    path(
+        "orders/<int:order_id>/status/",
+        update_order_status,
+        name="admin.orders.update_status",
+    ),
+    path("categories/", admin_categories, name="admin_categories"),
+    path("categories/add/", admin_category_add, name="admin_category_add"),
+    path(
+        "categories/<int:category_id>/edit/",
+        admin_category_edit,
+        name="admin_category_edit",
+    ),
     path("offers/", admin_offers, name="admin_offers"),
     path("offers/add/", admin_offer_add, name="admin_offer_add"),
     path("offers/<int:offer_id>/edit/", admin_offer_edit, name="admin_offer_edit"),
-    path("offers/<int:offer_id>/delete/", admin_offer_delete, name="admin_offer_delete"),
-    path('products/', admin_products, name='admin_products'),
-    path('products/add/', admin_product_add, name='admin_product_add'),
-    path('products/<int:product_id>/', admin_product_view, name='admin_product_view'),
-    path('products/<int:product_id>/edit/', admin_product_edit, name='admin_product_edit'),
-    path('products/<int:product_id>/delete/', admin_product_delete, name='admin_product_delete'),
-    path('products/images/<int:image_id>/delete/', admin_product_image_delete, name='admin_product_image_delete'),
+    path(
+        "offers/<int:offer_id>/delete/", admin_offer_delete, name="admin_offer_delete"
+    ),
+    path("products/", admin_products, name="admin_products"),
+    path("products/add/", admin_product_add, name="admin_product_add"),
+    path("products/<int:product_id>/", admin_product_view, name="admin_product_view"),
+    path(
+        "products/<int:product_id>/edit/", admin_product_edit, name="admin_product_edit"
+    ),
+    path(
+        "products/<int:product_id>/delete/",
+        admin_product_delete,
+        name="admin_product_delete",
+    ),
+    path(
+        "products/images/<int:image_id>/delete/",
+        admin_product_image_delete,
+        name="admin_product_image_delete",
+    ),
 ]

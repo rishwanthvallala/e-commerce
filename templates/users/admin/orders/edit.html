@@ -114,7 +114,7 @@
                             </div>
                             <div class="col-lg-7"></div>
                             <div class="col-lg-5">
-                                <form method="POST">
+                                <form method="POST" action="{% url 'users:admin.orders.update_status' order.id %}">
                                     {% csrf_token %}
                                     <div class="select-status">
                                         <label for="status">Status*</label>

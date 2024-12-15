@@ -8,6 +8,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.contrib import messages
 from django.utils.text import slugify
+from django.http import JsonResponse
 
 from categories.models import Category
 from orders.models import Order
@@ -110,6 +111,7 @@ def admin_order_detail(request, order_id):
     return render(request, "users/admin/orders/detail.html", context)
 
 
+@login_required
 def admin_order_edit(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     return render(request, "users/admin/orders/edit.html", {"order": order})
@@ -406,3 +408,23 @@ def admin_product_image_delete(request, image_id):
             messages.error(request, "Cannot delete the only product image!")
             
     return redirect('users:admin_product_edit', product_id=product_id)
+
+
+@login_required
+def update_order_status(request, order_id):
+    if not request.user.is_superuser:
+        messages.error(request, 'You are not authorized to perform this action')
+        return redirect('users:admin.orders')
+        
+    order = get_object_or_404(Order, id=order_id)
+    
+    if request.method == "POST":
+        new_status = request.POST.get('status')
+        if new_status in ['pending', 'processing', 'shipped', 'delivered', 'cancelled']:
+            order.status = new_status
+            order.save()
+            messages.success(request, f'Order status updated to {new_status}')
+        else:
+            messages.error(request, 'Invalid status')
+    
+    return redirect('users:admin.order_edit', order_id=order_id)
