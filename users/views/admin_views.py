@@ -331,6 +331,7 @@ def admin_product_add(request):
     return render(request, "users/admin/products/add.html", context)
 
 
+@login_required
 @user_passes_test(is_admin)
 def admin_product_edit(request, product_id):
     product = get_object_or_404(Product, id=product_id)
@@ -350,13 +351,29 @@ def admin_product_edit(request, product_id):
         product.is_active = request.POST.get("is_active") == "on"
         product.slug = slugify(request.POST.get("name"))
 
-        # Handle new images
-        new_images = request.FILES.getlist("images")
-        for image in new_images:
+        # Handle primary image
+        uploaded_primary_image = request.FILES.get("primary_image")
+        if uploaded_primary_image:
+            # If there's an existing primary image, update it
+            primary_image_obj = ProductImage.objects.filter(product=product, is_primary=True).first()
+            if primary_image_obj:
+                primary_image_obj.image = uploaded_primary_image
+                primary_image_obj.save()
+            else:
+                # Create new primary image
+                ProductImage.objects.create(
+                    product=product,
+                    image=uploaded_primary_image,
+                    is_primary=True
+                )
+
+        # Handle additional images
+        additional_images = request.FILES.getlist("additional_images")
+        for image in additional_images:
             ProductImage.objects.create(
                 product=product,
                 image=image,
-                is_primary=not product.images.exists(),  # Primary if no other images
+                is_primary=False
             )
 
         product.save()

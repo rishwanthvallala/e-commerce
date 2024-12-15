@@ -95,15 +95,43 @@
                                 </div>
 
                                 <!-- Product Images -->
-                                <div class="col-lg-6">
-                                    <div class="form-group">
-                                        <label class="form-label">Primary Image</label>
-                                        {% if product.primary_image %}
-                                            <div class="current-image mb-2">
-                                                <img src="{{ product.primary_image.image.url }}" alt="Current Image" style="max-width: 200px;">
+                                <div class="col-lg-12">
+                                    <div class="row">
+                                        <!-- Primary Image -->
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <label class="form-label">Primary Image*</label>
+                                                {% if product.primary_image %}
+                                                    <div class="current-image mb-2">
+                                                        <img src="{{ product.primary_image.image.url }}" alt="Primary Image" style="max-width: 200px;">
+                                                    </div>
+                                                {% endif %}
+                                                <input type="file" class="form-control" name="primary_image" accept="image/*">
+                                                <small class="form-text text-muted">This will be the main product image</small>
                                             </div>
-                                        {% endif %}
-                                        <input type="file" class="form-control" name="images" accept="image/*">
+                                        </div>
+
+                                        <!-- Additional Images -->
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <label class="form-label">Additional Images</label>
+                                                <div class="current-images mb-2">
+                                                    {% for image in product.images.all %}
+                                                        {% if not image.is_primary %}
+                                                        <div class="additional-image">
+                                                            <img src="{{ image.image.url }}" alt="Additional Image" style="max-width: 100px;">
+                                                            <button type="button" class="btn btn-sm btn-danger delete-image" 
+                                                                    data-image-id="{{ image.id }}">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </div>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                                <input type="file" class="form-control" name="additional_images" multiple accept="image/*">
+                                                <small class="form-text text-muted">You can select multiple images</small>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
