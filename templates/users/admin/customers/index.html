@@ -52,7 +52,7 @@
                                         <td>{{ customer.email }}</td>
                                         <td>{{ customer.phone|default:"-" }}</td>
                                         <td>{{ customer.order_count }}</td>
-                                        <td>৳{{ customer.total_spent|default:"0.00" }}</td>
+                                        <td>{{ settings.currency }}{{ customer.total_spent|default:"0.00" }}</td>
                                         <td>{{ customer.date_joined|date:"d M Y" }}</td>
                                         <td>
                                             <a href="{% url 'users:admin.customer_detail' customer.id %}" 

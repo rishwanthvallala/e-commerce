@@ -9,6 +9,8 @@ from django.db.models import Q
 from django.contrib import messages
 from django.utils.text import slugify
 from django.http import HttpResponse
+from django.db.models.functions import TruncDate
+from django.db.models import Count, Sum, F
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
@@ -17,7 +19,7 @@ from io import BytesIO
 
 from categories.models import Category
 from core.models import CURRENCY_CHOICES
-from orders.models import Order
+from orders.models import Order, OrderItem
 from offers.models import Offer
 from products.models import Product, ProductImage
 from users.models import User
@@ -663,3 +665,69 @@ def admin_email_settings(request):
 
     context = {"settings": SiteSettings.load()}
     return render(request, "users/admin/settings/email.html", context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def admin_reports(request):
+    report_type = request.GET.get("type", "sales")
+    start_date = request.GET.get("start_date")
+    end_date = request.GET.get("end_date")
+
+    # Base queryset
+    orders = Order.objects.filter(status="delivered")
+
+    # Apply date filters if provided
+    if start_date:
+        orders = orders.filter(created__gte=start_date)
+    if end_date:
+        orders = orders.filter(created__lte=end_date)
+
+    context = {
+        "report_type": report_type,
+        "start_date": start_date,
+        "end_date": end_date,
+    }
+
+    if report_type == "sales":
+        # Daily sales report
+        daily_sales = (
+            orders.annotate(date=TruncDate("created"))
+            .values("date")
+            .annotate(total_orders=Count("id"), total_sales=Sum("total_amount"))
+            .order_by("-date")
+        )
+        context["daily_sales"] = daily_sales
+
+    elif report_type == "products":
+        # Product performance report
+        product_sales = (
+            OrderItem.objects.filter(order__in=orders)
+            .values("product__name")
+            .annotate(
+                total_quantity=Sum("quantity"),
+                total_sales=Sum(F("price") * F("quantity"))  # Calculate total sales
+            )
+            .order_by("-total_quantity")
+        )
+        context["product_sales"] = product_sales
+
+    elif report_type == "customers":
+        # Customer analysis report
+        customer_stats = (
+            orders.values("user__name", "user__email")
+            .annotate(total_orders=Count("id"), total_spent=Sum("total_amount"))
+            .order_by("-total_spent")
+        )
+        context["customer_stats"] = customer_stats
+
+    elif report_type == "payment":
+        # Payment method analysis
+        payment_stats = (
+            orders.values("payment_method")
+            .annotate(total_orders=Count("id"), total_amount=Sum("total_amount"))
+            .order_by("-total_amount")
+        )
+        context["payment_stats"] = payment_stats
+
+    return render(request, "users/admin/reports/index.html", context)

@@ -61,8 +61,8 @@
                                 <div class="order-product-dt ml-3">
                                     <h6 class="mb-1">{{ item.product.name }}</h6>
                                     <p class="mb-0">Quantity: {{ item.quantity }}</p>
-                                    <p class="mb-0">Price: ৳{{ item.price }}</p>
-                                    <p class="mb-0">Subtotal: ৳{{ item.subtotal }}</p>
+                                    <p class="mb-0">Price: {{ settings.currency }}{{ item.price }}</p>
+                                    <p class="mb-0">Subtotal: {{ settings.currency }}{{ item.subtotal }}</p>
                                 </div>
                             </div>
                             {% endfor %}
@@ -73,16 +73,16 @@
                                 <h6 class="mb-3">Order Summary</h6>
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>Items Total:</span>
-                                    <span>৳{{ order.total_amount }}</span>
+                                    <span>{{ settings.currency }}{{ order.total_amount }}</span>
                                 </div>
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>Delivery Charge:</span>
-                                    <span>৳{{ order.delivery_charge }}</span>
+                                    <span>{{ settings.currency }}{{ order.delivery_charge }}</span>
                                 </div>
                                 <hr>
                                 <div class="d-flex justify-content-between font-weight-bold">
                                     <span>Total:</span>
-                                    <span>৳{{ order.grand_total }}</span>
+                                    <span>{{ settings.currency }}{{ order.grand_total }}</span>
                                 </div>
                             </div>
 

@@ -106,7 +106,7 @@
                                             {% endif %}
                                         </p>
                                         <h4>{{ product.name }}</h4>
-                                        <div class="product-price">৳{{ product.selling_price }} {% if product.original_price > product.selling_price %}<span>৳{{ product.original_price }}</span>{% endif %}</div>
+                                        <div class="product-price">{{ settings.currency }}{{ product.selling_price }} {% if product.original_price > product.selling_price %}<span>{{ settings.currency }}{{ product.original_price }}</span>{% endif %}</div>
                                         <div class="qty-cart">
                                             <div class="quantity buttons_added">
                                                 <input type="button" value="-" class="minus minus-btn">

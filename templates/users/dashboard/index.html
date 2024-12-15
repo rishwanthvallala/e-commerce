@@ -91,7 +91,7 @@
                             <td>#{{ order.order_number }}</td>
                             <td>{{ order.created|date:"M d, Y" }}</td>
                             <td>{{ order.items.count }} items</td>
-                            <td>৳{{ order.total_amount }}</td>
+                            <td>{{ settings.currency }}{{ order.total_amount }}</td>
                             <td>
                                 <span class="badge badge-{{ order.status }}">
                                     {{ order.get_status_display }}

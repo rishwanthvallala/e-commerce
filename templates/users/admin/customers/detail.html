@@ -32,7 +32,7 @@
                                 <div class="customer-stats">
                                     <h5>Customer Statistics</h5>
                                     <p><strong>Total Orders:</strong> {{ customer.order_count }}</p>
-                                    <p><strong>Total Spent:</strong> ৳{{ customer.total_spent|default:"0.00" }}</p>
+                                    <p><strong>Total Spent:</strong> {{ settings.currency }}{{ customer.total_spent|default:"0.00" }}</p>
                                 </div>
                             </div>
                         </div>
@@ -61,7 +61,7 @@
                                         <td>#{{ order.order_number }}</td>
                                         <td>{{ order.created|date:"d M Y" }}</td>
                                         <td>{{ order.status|title }}</td>
-                                        <td>৳{{ order.grand_total }}</td>
+                                        <td>{{ settings.currency }}{{ order.grand_total }}</td>
                                         <td>
                                             <a href="{% url 'users:admin.order_detail' order.id %}" 
                                                class="btn btn-sm btn-secondary">View Order</a>

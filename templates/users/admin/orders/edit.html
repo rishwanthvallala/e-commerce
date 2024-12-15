@@ -77,9 +77,9 @@
                                                                 {{ item.product.name }}
                                                             </a>
                                                         </td>
-                                                        <td class="text-center">৳{{ item.price }}</td>
+                                                        <td class="text-center">{{ settings.currency }}{{ item.price }}</td>
                                                         <td class="text-center">{{ item.quantity }}</td>
-                                                        <td class="text-center">৳{{ item.subtotal }}</td>
+                                                        <td class="text-center">{{ settings.currency }}{{ item.subtotal }}</td>
                                                     </tr>
                                                     {% endfor %}
                                                 </tbody>
@@ -95,7 +95,7 @@
                                         Sub Total
                                     </div>
                                     <div class="order-total-right-text">
-                                        ৳{{ order.total_amount }}
+                                        {{ settings.currency }}{{ order.total_amount }}
                                     </div>
                                 </div>
                                 <div class="order-total-dt">
@@ -103,7 +103,7 @@
                                         Delivery Fees
                                     </div>
                                     <div class="order-total-right-text">
-                                        ৳{{ order.delivery_charge|default:"0" }}
+                                        {{ settings.currency }}{{ order.delivery_charge|default:"0" }}
                                     </div>
                                 </div>
                                 <div class="order-total-dt">
@@ -111,7 +111,7 @@
                                         Total Amount
                                     </div>
                                     <div class="order-total-right-text fsz-18">
-                                        ৳{{ order.grand_total }}
+                                        {{ settings.currency }}{{ order.grand_total }}
                                     </div>
                                 </div>
                             </div>

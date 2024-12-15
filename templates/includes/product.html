@@ -23,9 +23,9 @@
             <h4 class="product-title">{{ product.name }}</h4>
             
             <div class="product-price">
-                <div class="current-price">৳{{ product.selling_price }}</div>
+                <div class="current-price">{{ settings.currency }}{{ product.selling_price }}</div>
                 {% if product.discount_percentage > 0 %}
-                    <div class="original-price">৳{{ product.original_price }}</div>
+                    <div class="original-price">{{ settings.currency }}{{ product.original_price }}</div>
                 {% endif %}
             </div>
 

@@ -43,7 +43,7 @@
                                         {% if offer.offer_type == 'percentage' %}
                                             <div class="discount-badge">{{ offer.discount_value }}% OFF</div>
                                         {% elif offer.offer_type == 'fixed' %}
-                                            <div class="discount-badge">৳{{ offer.discount_value }} OFF</div>
+                                            <div class="discount-badge">{{ settings.currency }}{{ offer.discount_value }} OFF</div>
                                         {% else %}
                                             <div class="discount-badge">Buy {{ offer.buy_quantity }} Get {{ offer.get_quantity }}</div>
                                         {% endif %}
@@ -51,7 +51,7 @@
                                     <p>{{ offer.description }}</p>
                                     {% if offer.min_purchase_amount > 0 %}
                                         <div class="min-purchase">
-                                            Minimum Purchase: ৳{{ offer.min_purchase_amount }}
+                                            Minimum Purchase: {{ settings.currency }}{{ offer.min_purchase_amount }}
                                         </div>
                                     {% endif %}
                                     <div class="offer-validity">

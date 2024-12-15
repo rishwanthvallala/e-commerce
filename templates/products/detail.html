@@ -206,13 +206,13 @@
                                         <ul>
                                             <li>
                                                 <div class="main-price color-discount">
-                                                    Selling Price<span>৳{{ product.selling_price }}</span>
+                                                    Selling Price<span>{{ settings.currency }}{{ product.selling_price }}</span>
                                                 </div>
                                             </li>
                                             {% if product.discount_percentage > 0 %}
                                             <li>
                                                 <div class="main-price mrp-price">
-                                                    Original Price<span>৳{{ product.original_price }}</span>
+                                                    Original Price<span>{{ settings.currency }}{{ product.original_price }}</span>
                                                 </div>
                                                 <div class="discount-tag">
                                                     {{ product.discount_percentage }}% OFF
@@ -300,9 +300,9 @@
                                 <div class="similar-item-info">
                                     <h5>{{ product.name }}</h5>
                                     <div class="price-info">
-                                        <strong>৳{{ product.selling_price }}</strong>
+                                        <strong>{{ settings.currency }}{{ product.selling_price }}</strong>
                                         {% if product.discount_percentage > 0 %}
-                                            <span class="old-price">৳{{ product.original_price }}</span>
+                                            <span class="old-price">{{ settings.currency }}{{ product.original_price }}</span>
                                             <span class="discount">-{{ product.discount_percentage }}%</span>
                                         {% endif %}
                                     </div>
@@ -397,9 +397,9 @@
                                 </p>
                                 <h4>{{ product.name }}</h4>
                                 <div class="product-price">
-                                    ৳{{ product.selling_price }} 
+                                    {{ settings.currency }}{{ product.selling_price }} 
                                     {% if product.discount_percentage > 0 %}
-                                        <span>৳{{ product.original_price }}</span>
+                                        <span>{{ settings.currency }}{{ product.original_price }}</span>
                                     {% endif %}
                                 </div>
                                 {% if product.stock > 0 %}

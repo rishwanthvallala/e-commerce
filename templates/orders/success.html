@@ -34,9 +34,9 @@
                                     <p><strong>Grand Total:</strong></p>
                                 </div>
                                 <div class="col-6 text-right">
-                                    <p>৳{{ order.total_amount }}</p>
-                                    <p>৳{{ order.delivery_charge }}</p>
-                                    <p><strong>৳{{ order.grand_total }}</strong></p>
+                                    <p>{{ settings.currency }}{{ order.total_amount }}</p>
+                                    <p>{{ settings.currency }}{{ order.delivery_charge }}</p>
+                                    <p><strong>{{ settings.currency }}{{ order.grand_total }}</strong></p>
                                 </div>
                             </div>
                         </div>

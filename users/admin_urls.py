@@ -24,6 +24,7 @@ from users.views.admin_views import (
     admin_general_settings,
     admin_payment_settings,
     admin_email_settings,
+    admin_reports,
 )
 
 urlpatterns = [
@@ -71,4 +72,5 @@ urlpatterns = [
     path('settings/general/', admin_general_settings, name='admin.settings.general'),
     path('settings/payment/', admin_payment_settings, name='admin.settings.payment'),
     path('settings/email/', admin_email_settings, name='admin.settings.email'),
+    path('reports/', admin_reports, name='admin.reports'),
 ]

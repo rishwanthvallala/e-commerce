@@ -31,9 +31,9 @@
                     </p>
                     <h4>{{ item.product.name }}</h4>
                     <div class="product-price">
-                        ৳{{ item.product.selling_price }}
+                        {{ settings.currency }}{{ item.product.selling_price }}
                         {% if item.product.discount_percentage > 0 %}
-                            <span>৳{{ item.product.original_price }}</span>
+                            <span>{{ settings.currency }}{{ item.product.original_price }}</span>
                         {% endif %}
                     </div>
                     {% if item.product.stock > 0 %}
