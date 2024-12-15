@@ -99,7 +99,7 @@
 								<div class="sb-nav-link-icon"><i class="fas fa-cart-arrow-down"></i></div>
                                 Orders
 							</a>
-							<a class="nav-link" href="customers.html">
+							<a class="nav-link" href="{% url 'users:admin.customers' %}">
 								<div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
                                 Customers
 							</a>
@@ -147,8 +147,8 @@
                         <div class="d-flex align-items-center justify-content-between small">
                             <div class="text-muted-1">© 2024</div>
                             <div class="footer-links">
-                                <a href="">Privacy Policy</a>
-                                <a href="">Terms &amp; Conditions</a>
+                                <a href="{% url 'core:privacy' %}">Privacy Policy</a>
+                                <a href="{% url 'core:terms' %}">Terms &amp; Conditions</a>
                             </div>
                         </div>
                     </div>

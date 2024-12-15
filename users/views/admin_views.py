@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils import timezone
-from django.db.models import Sum
+from django.db.models import Sum, Count
 from django.db.models.functions import ExtractMonth
 from calendar import month_name
 from django.core.paginator import Paginator
@@ -19,6 +19,7 @@ from categories.models import Category
 from orders.models import Order
 from offers.models import Offer
 from products.models import Product, ProductImage
+from users.models import User
 
 
 def is_admin(user):
@@ -540,3 +541,54 @@ def generate_order_pdf(request, order_id):
     response.write(pdf)
 
     return response
+
+
+@login_required
+@user_passes_test(is_admin)
+def admin_customers(request):
+    search_query = request.GET.get('search', '')
+    
+    # Base queryset with annotated order count and total spent
+    customers = User.objects.annotate(
+        order_count=Count('orders'),
+        total_spent=Sum('orders__total_amount', filter=Q(orders__status='delivered'))
+    ).filter(is_superuser=False)
+    
+    # Apply search filter
+    if search_query:
+        customers = customers.filter(
+            Q(name__icontains=search_query) |
+            Q(email__icontains=search_query) |
+            Q(phone__icontains=search_query)
+        )
+    
+    paginator = Paginator(customers, 10)
+    page_number = request.GET.get('page', 1)
+    customers_page = paginator.get_page(page_number)
+    
+    context = {
+        'customers': customers_page,
+        'search_query': search_query
+    }
+    return render(request, 'users/admin/customers/index.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def admin_customer_detail(request, user_id):
+    customer = get_object_or_404(
+        User.objects.annotate(
+            order_count=Count('orders'),
+            total_spent=Sum('orders__total_amount', filter=Q(orders__status='delivered'))
+        ),
+        id=user_id,
+        is_superuser=False
+    )
+    
+    orders = Order.objects.filter(user=customer).order_by('-created')
+    
+    context = {
+        'customer': customer,
+        'orders': orders
+    }
+    return render(request, 'users/admin/customers/detail.html', context)
