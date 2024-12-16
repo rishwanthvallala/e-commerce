@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'orders',
     'wishlist',
     'offers',
+    'djstripe',
 ]
 
 MIDDLEWARE = [
