@@ -16,8 +16,6 @@ class SiteSettings(models.Model):
     address = models.TextField(null=True, blank=True)
 
     # Payment Settings
-    stripe_public_key = models.CharField(max_length=255, null=True, blank=True)
-    stripe_secret_key = models.CharField(max_length=255, null=True, blank=True)
     paypal_client_id = models.CharField(max_length=255, null=True, blank=True)
     paypal_secret = models.CharField(max_length=255, null=True, blank=True)
     currency = models.CharField(max_length=3, default="BDT", choices=CURRENCY_CHOICES)
