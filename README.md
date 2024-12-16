@@ -12,6 +12,15 @@ WOWY is a modern, full-featured e-commerce platform built with Django 4.x, desig
 ![Admin products page](screenshots/admin.png)
 *Admin products page*
 
+![User dashboard](screenshots/user_dashboard.png)
+*User dashboard*
+
+![Admin orders page](screenshots/orders.png)
+*Admin orders page*
+
+![Admin categories page](screenshots/categories.png)
+*Admin categories page*
+
 ## 🌟 Features
 
 ### Product Management
