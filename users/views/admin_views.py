@@ -269,12 +269,19 @@ def admin_products(request):
     if category_id:
         products = products.filter(category_id=category_id)
 
+    # Pagination
+    paginator = Paginator(products, 10)  # Show 10 products per page
+    page_number = request.GET.get('page', 1)
+    products_page = paginator.get_page(page_number)
+
     # Get all categories for the filter dropdown
     categories = Category.objects.filter(status=Category.StatusChoices.ACTIVE)
 
     context = {
-        "products": products,
+        "products": products_page,
         "categories": categories,
+        "search_query": search_query,
+        "selected_category": category_id,
     }
     return render(request, "users/admin/products/index.html", context)
 
