@@ -13,11 +13,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const productId = document.querySelector('.add-cart-btn').dataset.product;
             const response = await fetch(`/products/api/variant/?product_id=${productId}&size=${size}&color=${color}`);
             if (!response.ok) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Variant not found',
-                });
                 return null;
             }
             return await response.json();
