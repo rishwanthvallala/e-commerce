@@ -53,9 +53,11 @@ WOWY is a modern, full-featured e-commerce platform built with Django 4.x, desig
 - 💳 Payment method analysis
 
 ### Payment Integration
-- 💳 Multiple payment gateway support
-- 💸 Secure payment processing
-- 🏦 Payment status tracking
+- 💳 Stripe payment gateway integration
+- 💸 Secure payment processing with 3D Secure support
+- 🏦 Multiple payment methods (Credit Card, Cash on Delivery)
+- 💰 Automatic payment status tracking
+- 🔐 Secure key management with djstripe
 
 ### Site Configuration
 - ��️ General settings management
@@ -248,6 +250,97 @@ Project is: _in development_
 - [ ] Multi-language support
 - [ ] Marketplace functionality
 - [ ] Advanced SEO features
+
+## 🚀 Setup Instructions
+
+### Basic Setup
+1. Clone the repository
+```bash
+git clone https://github.com/manjurulhoque/wowy.git gambo
+cd gambo
+```
+
+2. Create and activate virtual environment
+```bash
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate     # Windows
+```
+
+3. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+4. Configure environment variables
+```bash
+cp .env.example .env
+# Edit .env with your settings:
+# DATABASE_URL=postgresql://user:password@localhost:5432/dbname
+# SECRET_KEY=your-secret-key
+# DEBUG=True
+```
+
+5. Run migrations
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+6. Create superuser
+```bash
+python manage.py createsuperuser
+```
+
+7. Run development server
+```bash
+python manage.py runserver
+```
+
+Visit http://localhost:8000/admin to access the admin panel.
+
+### Stripe Integration Setup
+
+1. Install required packages:
+```bash
+pip install stripe djstripe
+```
+
+2. Add to INSTALLED_APPS:
+```python
+INSTALLED_APPS = [
+    ...
+    'djstripe',
+]
+```
+
+3. Configure Stripe in Django Admin:
+- Access Django Admin
+- Go to DJ Stripe > API Keys
+- Add two API keys:
+  - Type: Secret (from Stripe Dashboard)
+  - Type: Publishable (from Stripe Dashboard)
+
+4. Stripe Configuration in Settings:
+```python
+STRIPE_LIVE_MODE = False  # Change to True in production
+DJSTRIPE_WEBHOOK_SECRET = "whsec_xxx"  # Get from Stripe Dashboard
+DJSTRIPE_FOREIGN_KEY_TO_FIELD = "id"
+```
+
+5. Webhook Setup (Production):
+- Create webhook endpoint in Stripe Dashboard
+- Point to: `https://yourdomain.com/webhook/stripe/`
+- Add webhook secret to DJSTRIPE_WEBHOOK_SECRET
+
+### Payment Flow
+1. Customer selects items and proceeds to checkout
+2. Chooses payment method (Stripe or Cash on Delivery)
+3. For Stripe:
+   - Card details collected securely
+   - Payment intent created
+   - Order created upon successful payment
+4. Order confirmation and invoice generation
 
 ---
 ⌨️ with ❤️ by [Manjurul Hoque Rumi](https://github.com/manjurulhoque)
