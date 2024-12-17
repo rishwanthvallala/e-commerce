@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to fetch variant details
     async function getVariantDetails(size, color) {
         try {
-            const productId = document.querySelector('.add-cart-btn').dataset.product;
+            const productId = document.querySelector('.add-variant-cart-btn').dataset.product;
             const response = await fetch(`/products/api/variant/?product_id=${productId}&size=${size}&color=${color}`);
             if (!response.ok) {
                 return null;
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const variantInstructions = document.getElementById('variant-instructions');
         const priceElement = document.getElementById('variant-price');
         const stockElement = document.getElementById('variant-stock');
-        const addToCartBtn = document.querySelector('.add-cart-btn');
+        const addToCartBtn = document.querySelector('.add-variant-cart-btn');
         const orderBtn = document.querySelector('.order-btn');
 
         if (selectedVariant.size && selectedVariant.color) {
@@ -61,12 +61,20 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } else {
             // Not all options selected
-            variantDetails.style.display = 'none';
-            variantInstructions.style.display = 'block';
-            variantInstructions.className = 'variant-message';
-            variantInstructions.innerHTML = '<i class="fas fa-info-circle"></i> Please select size and color options';
-            addToCartBtn.disabled = true;
-            orderBtn.disabled = true;
+            if (variantDetails) {
+                variantDetails.style.display = 'none';
+            }
+            if (variantInstructions) {
+                variantInstructions.style.display = 'block';
+                variantInstructions.className = 'variant-message';
+                variantInstructions.innerHTML = '<i class="fas fa-info-circle"></i> Please select size and color options';
+            }
+            if (addToCartBtn) {
+                addToCartBtn.disabled = true;
+            }
+            if (orderBtn) {
+                orderBtn.disabled = true;
+            }
         }
     }
 
@@ -94,21 +102,28 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Update add to cart button to include variant ID
-    const addToCartBtn = document.querySelector('.add-cart-btn');
-    if (addToCartBtn) {
-        const originalClick = addToCartBtn.onclick;
-        addToCartBtn.onclick = async function(e) {
+    // Handle add to cart for variant products
+    const addVariantCartBtn = document.querySelector('.add-variant-cart-btn');
+    if (addVariantCartBtn) {
+        addVariantCartBtn.addEventListener('click', async function(e) {
+            e.preventDefault();
             if (selectedVariant.id) {
-                // Add variant_id to the cart data
-                const formData = new FormData();
-                formData.append('variant_id', selectedVariant.id);
-                // ... rest of your cart addition logic
+                const quantity = document.querySelector('.qty.text').value;
+                const data = {
+                    product_id: this.dataset.product,
+                    variant_id: selectedVariant.id,
+                    quantity: quantity
+                };
+                
+                addToCart(data);
             } else {
-                e.preventDefault();
-                alert('Please select size and color options');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Please select options',
+                    text: 'Please select size and color options'
+                });
             }
-        };
+        });
     }
 
     // Initialize buttons as disabled

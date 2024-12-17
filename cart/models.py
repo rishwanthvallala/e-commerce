@@ -33,6 +33,16 @@ class CartItem(TimeStampedModel):
     )
     quantity = models.PositiveIntegerField(default=1)
 
+    @property
+    def total_price(self):
+        # Use variant price if variant exists, otherwise use product price
+        unit_price = self.variant.selling_price if self.variant else self.product.selling_price
+        return unit_price * self.quantity
+
+    def __str__(self):
+        variant_info = f" ({self.variant})" if self.variant else ""
+        return f"{self.product}{variant_info} x {self.quantity}"
+
     class Meta:
         verbose_name = "Cart Item"
         verbose_name_plural = "Cart Items"

@@ -359,3 +359,58 @@ function setupQuantityControls() {
         }
     });
 }
+
+async function addToCart(data) {
+    try {
+        const response = await fetch('/cart/api/add/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || 'Failed to add to cart');
+        }
+
+        // Update cart count in navbar
+        const cartCountElement = document.querySelector('.cart-count');
+        if (cartCountElement) {
+            cartCountElement.textContent = result.cart_total;
+        }
+
+        // Show success message
+        Swal.fire({
+            icon: 'success',
+            title: 'Added to Cart',
+            text: result.message,
+            showConfirmButton: false,
+            timer: 1500
+        });
+
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: error.message
+        });
+    }
+}
+
+// // Handle regular (non-variant) products
+// document.querySelectorAll('.add-cart-btn').forEach(button => {
+//     button.addEventListener('click', function(e) {
+//         e.preventDefault();
+//         const quantity = document.querySelector('.qty.text')?.value || 1;
+//         const data = {
+//             product_id: this.dataset.product,
+//             quantity: quantity
+//         };
+        
+//         addToCart(data);
+//     });
+// });

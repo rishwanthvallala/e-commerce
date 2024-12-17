@@ -480,6 +480,62 @@
                 font-size: 14px;
             }
         }
+
+        /* Common styles for both button types */
+        .add-cart-btn,
+        .add-variant-cart-btn {
+            background: #f55d2c;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .add-cart-btn:hover,
+        .add-variant-cart-btn:hover {
+            background: #f44336;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(245, 93, 44, 0.3);
+        }
+
+        .add-cart-btn:disabled,
+        .add-variant-cart-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .add-cart-btn i,
+        .add-variant-cart-btn i {
+            margin-right: 5px;
+        }
+
+        /* Order button styles */
+        .order-btn {
+            background: #2b2f4c;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .order-btn:hover {
+            background: #1e2238;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(43, 47, 76, 0.3);
+        }
+
+        .order-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
     </style>
 {% endblock %}
 
@@ -672,7 +728,7 @@
                                         </ul>
                                         <ul class="ordr-crt-share">
                                             <li>
-                                                <button class="add-cart-btn hover-btn" 
+                                                <button class="{% if product.has_variants %}add-variant-cart-btn{% else %}add-cart-btn{% endif %} hover-btn" 
                                                         data-product="{{ product.id }}" 
                                                         {% if product.has_variants %}disabled{% endif %}>
                                                     <i class="uil uil-shopping-cart-alt"></i>
