@@ -47,6 +47,7 @@ class Order(TimeStampedModel):
     )
     payment_method = models.CharField(max_length=20, default="cash_on_delivery")
     notes = models.TextField(blank=True, null=True)
+    payment_intent_id = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta:
         ordering = ["-created"]

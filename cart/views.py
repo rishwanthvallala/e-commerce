@@ -5,22 +5,34 @@ from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.utils.crypto import get_random_string
 from django.urls import reverse
+from django.utils import timezone
+import random
+from decimal import Decimal
+import stripe
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from djstripe.models import APIKey
+import json
 import logging
 from products.models import Product
 from orders.models import Order, OrderItem
 from users.models import Address
+
+from core.mixins import StripeMixin
+
 from .models import Cart, CartItem
 from .serializers import CartSerializer
-from django.utils import timezone
-import random
-from decimal import Decimal
+
+from django.views import View
+from django.utils.decorators import method_decorator
+from django.views.decorators.http import require_POST
+
 
 logger = logging.getLogger(__name__)
 
@@ -134,12 +146,16 @@ def update_cart_item(request):
     )
 
 
-class CheckoutView(LoginRequiredMixin, TemplateView):
+class CheckoutView(LoginRequiredMixin, TemplateView, StripeMixin):
     template_name = "cart/checkout.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
+            # Setup Stripe and get publishable key
+            stripe_context = self.get_stripe_context()
+            context.update(stripe_context)
+
             cart = Cart.objects.prefetch_related("items__product").get(
                 user=self.request.user
             )
@@ -163,6 +179,9 @@ class CheckoutView(LoginRequiredMixin, TemplateView):
                 }
             )
         except Cart.DoesNotExist:
+            context["cart"] = None
+        except APIKey.DoesNotExist:
+            messages.error(self.request, "Stripe API keys not configured properly")
             context["cart"] = None
 
         return context
@@ -258,3 +277,127 @@ def place_order(request):
     except Exception as e:
         traceback.print_exc()
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PaymentIntentView(View, StripeMixin):
+    @method_decorator(require_POST)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request):
+        try:
+            # Setup Stripe
+            self.setup_stripe()
+
+            data = json.loads(request.body)
+            payment_method_id = data.get("payment_method_id")
+            shipping_address_id = data.get("shipping_address")
+
+            # Calculate amount
+            cart = request.user.cart
+            amount = int((cart.total_price + 50) * 100)  # Convert to cents
+
+            # Create PaymentIntent
+            intent = stripe.PaymentIntent.create(
+                amount=amount,
+                currency="bdt",
+                payment_method=payment_method_id,
+                confirmation_method="manual",
+                confirm=True,
+                return_url=request.build_absolute_uri(reverse("cart:confirm_payment")),
+            )
+
+            # Store shipping address in session for later use
+            request.session["shipping_address_id"] = shipping_address_id
+
+            if intent.status == "requires_action":
+                return JsonResponse(
+                    {
+                        "requires_action": True,
+                        "client_secret": intent.client_secret,
+                        "payment_intent_id": intent.id,
+                    }
+                )
+            elif intent.status == "succeeded":
+                # Create order and clear cart
+                order = self.create_order(request, intent.id)
+                return JsonResponse(
+                    {
+                        "success": True,
+                        "redirect_url": reverse(
+                            "orders:success", args=[order.order_number]
+                        ),
+                    }
+                )
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+
+    def create_order(self, request, payment_intent_id):
+        shipping_address_id = request.session.get("shipping_address_id")
+        shipping_address = Address.objects.get(id=shipping_address_id)
+
+        cart = request.user.cart
+        total_amount = cart.total_price
+        delivery_charge = Decimal("50.00")
+
+        order = Order.objects.create(
+            user=request.user,
+            shipping_address=shipping_address,
+            billing_address=shipping_address,
+            payment_method="stripe",
+            payment_intent_id=payment_intent_id,
+            total_amount=total_amount,
+            delivery_charge=delivery_charge,
+            status="processing",
+            order_number=f"ORD-{timezone.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}",
+        )
+
+        # Create order items
+        for cart_item in cart.items.all():
+            OrderItem.objects.create(
+                order=order,
+                product=cart_item.product,
+                quantity=cart_item.quantity,
+                price=cart_item.product.selling_price,
+            )
+
+        # Clear cart
+        cart.items.all().delete()
+
+        # Clear session
+        if "shipping_address_id" in request.session:
+            del request.session["shipping_address_id"]
+
+        return order
+
+
+class PaymentConfirmView(View, StripeMixin):
+    @method_decorator(require_POST)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request):
+        try:
+            # Setup Stripe
+            self.setup_stripe()
+
+            data = json.loads(request.body)
+            payment_intent_id = data.get("payment_intent_id")
+
+            intent = stripe.PaymentIntent.retrieve(payment_intent_id)
+
+            if intent.status == "succeeded":
+                # Create order and clear cart
+                order = PaymentIntentView.create_order(self, request, payment_intent_id)
+                return JsonResponse(
+                    {
+                        "success": True,
+                        "redirect_url": reverse(
+                            "orders:success", args=[order.order_number]
+                        ),
+                    }
+                )
+            else:
+                return JsonResponse({"error": "Payment failed"}, status=400)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
