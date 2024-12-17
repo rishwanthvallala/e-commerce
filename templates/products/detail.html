@@ -341,6 +341,145 @@
             background: #ffebee;
             color: #c62828;
         }
+
+        .product-pricing {
+            padding: 1.5rem;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .price-range, .price-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .price-label {
+            font-size: 0.875rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .price-value {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #2b2f4c;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .price-value .currency {
+            font-size: 1rem;
+            color: #666;
+        }
+
+        .price-value .separator {
+            margin: 0 0.5rem;
+            color: #666;
+        }
+
+        .price-note {
+            font-size: 0.813rem;
+            color: #666;
+        }
+
+        .original-price {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .original-price .price {
+            text-decoration: line-through;
+            color: #999;
+            font-size: 1rem;
+        }
+
+        .discount-badge {
+            background: #fff0ee;
+            color: #f55d2c;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.813rem;
+            font-weight: 500;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .product-pricing {
+                padding: 1rem;
+            }
+            
+            .price-value {
+                font-size: 1.5rem;
+            }
+        }
+
+        .price-display {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+        }
+
+        .price-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .price-title {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .variant-note {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .variant-note i {
+            margin-right: 4px;
+            color: #f55d2c;
+        }
+
+        .price-amount {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2b2f4c;
+        }
+
+        .original-price {
+            font-size: 16px;
+            color: #999;
+            text-decoration: line-through;
+            margin-left: 8px;
+        }
+
+        .discount-tag {
+            background: #ffeee8;
+            color: #f55d2c;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .price-amount {
+                font-size: 20px;
+            }
+            
+            .original-price {
+                font-size: 14px;
+            }
+        }
     </style>
 {% endblock %}
 
@@ -482,28 +621,37 @@
                                         <ul>
                                             {% if product.has_variants %}
                                                 {% if product.variants.all|length > 0 %}
-                                                    <li>
-                                                        <div class="main-price color-discount">
-                                                            Selling Price<span> {{ settings.currency }}{{ product.variants.first.selling_price }} - {{ settings.currency }}{{ product.variants.last.selling_price }}</span>
+                                                    <li class="price-display">
+                                                        <div class="price-range">
+                                                            <div class="price-header">
+                                                                <span class="price-title">Price Range</span>
+                                                                <div class="variant-note">
+                                                                    <i class="fas fa-info-circle"></i> Select options for final price
+                                                                </div>
+                                                            </div>
+                                                            <div class="price-amount">
+                                                                {{ settings.currency }}{{ product.variants.first.selling_price }} - {{ settings.currency }}{{ product.variants.last.selling_price }}
+                                                            </div>
                                                         </div>
                                                     </li>
                                                 {% endif %}
                                             {% else %}
-                                                <li>
-                                                    <div class="main-price color-discount">
-                                                        Selling Price<span> {{ settings.currency }}{{ product.selling_price }}</span>
+                                                <li class="price-display">
+                                                    <div class="current-price">
+                                                        <div class="price-header">
+                                                            <span class="price-title">Price</span>
+                                                            {% if product.discount_percentage > 0 %}
+                                                                <span class="discount-tag">{{ product.discount_percentage }}% OFF</span>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="price-amount">
+                                                            {{ settings.currency }}{{ product.selling_price }}
+                                                            {% if product.discount_percentage > 0 %}
+                                                                <span class="original-price">{{ settings.currency }}{{ product.original_price }}</span>
+                                                            {% endif %}
+                                                        </div>
                                                     </div>
                                                 </li>
-                                                {% if product.discount_percentage > 0 %}
-                                                    <li>
-                                                        <div class="main-price mrp-price">
-                                                            Original Price<span> {{ settings.currency }}{{ product.original_price }}</span>
-                                                        </div>
-                                                        <div class="discount-tag">
-                                                            {{ product.discount_percentage }}% OFF
-                                                        </div>
-                                                    </li>
-                                                {% endif %}
                                             {% endif %}
                                         </ul>
                                         <ul class="gty-wish-share">
