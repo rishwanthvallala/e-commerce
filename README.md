@@ -72,6 +72,82 @@ WOWY is a modern, full-featured e-commerce platform built with Django 4.x, desig
 - 💳 Payment method analytics
 - 📉 Custom date range filtering
 
+## Product Variant System
+
+The system supports product variants with different sizes and colors. This allows for better inventory management and more flexible product offerings.
+
+### Features
+
+- **Variant Management**
+  - Add multiple variants per product
+  - Support for size and color combinations
+  - Individual pricing per variant
+  - Separate stock tracking for each variant
+  - SKU management for variants
+
+- **Admin Interface**
+  - Easy variant creation and editing
+  - Bulk variant management
+  - Stock level monitoring
+  - Price range display
+
+- **Shopping Experience**
+  - Size and color selection
+  - Dynamic price updates
+  - Stock availability check
+  - Clear variant options display
+  - Cart integration with variants
+
+### Usage
+
+1. **Creating Product Variants**
+   ```
+   - Go to Admin > Products > View Product
+   - Click "Manage Variants"
+   - Add variants with size/color combinations
+   - Set price and stock for each variant
+   ```
+
+2. **Managing Stock**
+   ```
+   - Stock is tracked per variant
+   - Out-of-stock variants are automatically disabled
+   - Low stock warnings in admin panel
+   ```
+
+3. **Shopping Cart**
+   ```
+   - Variants are added to cart separately
+   - Price is determined by selected variant
+   - Stock check during checkout
+   ```
+
+### API Endpoints
+
+- `GET /products/api/variant/`
+  - Get variant details by product_id, size, and color
+  - Returns price, stock, and variant ID
+
+- `POST /cart/api/add/`
+  - Add variant to cart
+  - Requires product_id, variant_id, and quantity
+
+### Technical Details
+
+- Variant model includes:
+  - Size (optional)
+  - Color (optional)
+  - SKU
+  - Price
+  - Stock level
+  - Product reference
+
+- Frontend uses:
+  - Dynamic variant selection
+  - Real-time price updates
+  - Stock availability checks
+  - Cart integration
+
 ## 🛠️ Tech Stack
 
 ### Backend
