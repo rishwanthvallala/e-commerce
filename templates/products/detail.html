@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load static %}
+{% load product_filters %}
 
 {% block style %}
     <style>
@@ -123,6 +124,223 @@
             font-size: 13px;
             font-weight: 500;
         }
+
+        .product-variants mb-4 {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .variant-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .size-selector, .color-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .size-selector label, .color-selector label {
+            font-weight: 600;
+        }
+
+        .size-buttons, .color-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .size-buttons input, .color-buttons input {
+            display: none;
+        }
+
+        .size-buttons label, .color-buttons label {
+            cursor: pointer;
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .size-buttons label:hover, .color-buttons label:hover {
+            background-color: #f0f0f0;
+        }
+
+        .variant-details {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .variant-price, .variant-stock {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .variant-price span, .variant-stock span {
+            font-weight: 600;
+        }
+
+        /* Variant Selection Styles */
+        .variant-options label {
+            font-weight: 500;
+        }
+
+        .size-buttons,
+        .color-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .btn-check {
+            position: absolute;
+            clip: rect(0,0,0,0);
+            pointer-events: none;
+        }
+
+        .btn-check + label {
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-check:checked + label {
+            background-color: #2b2f4c;
+            color: white;
+            border-color: #2b2f4c;
+        }
+
+        .btn-check:disabled + label {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Variant Details Styles */
+        .variant-details {
+            border: 1px solid rgba(0,0,0,0.1);
+            background-color: #f8f9fa;
+        }
+
+        .variant-price h4 {
+            color: #2b2f4c;
+            font-weight: 600;
+        }
+
+        .text-danger {
+            color: #dc3545;
+        }
+
+        .text-success {
+            color: #28a745;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .variant-details .row > div:not(:last-child) {
+                margin-bottom: 1rem;
+            }
+        }
+
+        /* Variant Selection */
+        .variant-options {
+            margin-bottom: 1.5rem;
+        }
+
+        .variant-options label span {
+            font-size: 14px;
+            color: #2b2f4c;
+            font-weight: 500;
+        }
+
+        .size-buttons,
+        .color-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        /* Variant Buttons */
+        .variant-btn {
+            padding: 8px 16px;
+            border: 1px solid #e4e4e4;
+            border-radius: 4px;
+            color: #2b2f4c;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .variant-btn:hover {
+            border-color: #2b2f4c;
+        }
+
+        .btn-check:checked + .variant-btn {
+            background: #2b2f4c;
+            color: white;
+            border-color: #2b2f4c;
+        }
+
+        /* Variant Messages */
+        .variant-message {
+            padding: 12px;
+            border-radius: 4px;
+            background: #f8f9fa;
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 1rem;
+        }
+
+        .variant-message.error {
+            background: #fff5f5;
+            color: #dc3545;
+        }
+
+        /* Variant Details */
+        .variant-details {
+            margin-top: 1rem;
+        }
+
+        .variant-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .variant-price {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2b2f4c;
+        }
+
+        .stock-badge {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .stock-badge.in-stock {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .stock-badge.out-of-stock {
+            background: #ffebee;
+            color: #c62828;
+        }
     </style>
 {% endblock %}
 
@@ -187,73 +405,105 @@
                                     </div>
 
                                     {% if product.has_variants %}
-                                    <div class="product-variants mb-4">
-                                        {% if product.variants.all|length > 0 %}
-                                            <div class="variant-options">
-                                                {% if product.variants.first.size %}
-                                                    <div class="size-selector mb-3">
-                                                        <label>Size:</label>
-                                                        <select class="form-control variant-select" data-type="size">
-                                                            <option value="">Select Size</option>
-                                                            {% for variant in product.variants.all|dictsort:"size" %}
-                                                                {% if variant.size %}
-                                                                    <option value="{{ variant.size }}" 
-                                                                            data-price="{{ variant.selling_price }}"
-                                                                            data-stock="{{ variant.stock }}">
-                                                                        {{ variant.size }}
-                                                                    </option>
-                                                                {% endif %}
-                                                            {% endfor %}
-                                                        </select>
-                                                    </div>
-                                                {% endif %}
+                                        <div class="product-variants mb-4">
+                                            {% if product.variants.all|length > 0 %}
+                                                <div class="variant-options">
+                                                    {% if product.variants.first.size %}
+                                                        <div class="size-selector mb-3">
+                                                            <label class="d-block mb-2">
+                                                                <span>Size</span>
+                                                                <span class="text-danger">*</span>
+                                                            </label>
+                                                            <div class="size-buttons">
+                                                                {% for variant in product.variants.all|dictsort:"size"|unique:"size" %}
+                                                                    {% if variant.size %}
+                                                                        <input type="radio" 
+                                                                               name="size" 
+                                                                               id="size-{{ variant.size }}" 
+                                                                               class="btn-check variant-select" 
+                                                                               value="{{ variant.size }}"
+                                                                               data-type="size">
+                                                                        <label class="variant-btn" 
+                                                                               for="size-{{ variant.size }}">
+                                                                            {{ variant.get_size_display }}
+                                                                        </label>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
 
-                                                {% if product.variants.first.color %}
-                                                    <div class="color-selector mb-3">
-                                                        <label>Color:</label>
-                                                        <select class="form-control variant-select" data-type="color">
-                                                            <option value="">Select Color</option>
-                                                            {% for variant in product.variants.all|dictsort:"color" %}
-                                                                {% if variant.color %}
-                                                                    <option value="{{ variant.color }}"
-                                                                            data-price="{{ variant.selling_price }}"
-                                                                            data-stock="{{ variant.stock }}">
-                                                                        {{ variant.color }}
-                                                                    </option>
-                                                                {% endif %}
-                                                            {% endfor %}
-                                                        </select>
-                                                    </div>
-                                                {% endif %}
-                                            </div>
+                                                    {% if product.variants.first.color %}
+                                                        <div class="color-selector mb-3">
+                                                            <label class="d-block mb-2">
+                                                                <span>Color</span>
+                                                                <span class="text-danger">*</span>
+                                                            </label>
+                                                            <div class="color-buttons">
+                                                                {% for variant in product.variants.all|dictsort:"color"|unique:"color" %}
+                                                                    {% if variant.color %}
+                                                                        <input type="radio" 
+                                                                               name="color" 
+                                                                               id="color-{{ variant.color|slugify }}" 
+                                                                               class="btn-check variant-select" 
+                                                                               value="{{ variant.color }}"
+                                                                               data-type="color">
+                                                                        <label class="variant-btn" 
+                                                                               for="color-{{ variant.color|slugify }}">
+                                                                            {{ variant.color }}
+                                                                        </label>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
 
-                                            <div class="variant-price mt-2">
-                                                Price: <span id="variant-price">{{ product.selling_price }}</span>
-                                            </div>
-                                            <div class="variant-stock mt-2">
-                                                Stock: <span id="variant-stock">{{ product.stock }}</span>
-                                            </div>
-                                        {% endif %}
-                                    </div>
+                                                <div id="variant-instructions" class="variant-message">
+                                                    <i class="fas fa-info-circle"></i> Please select size and color options
+                                                </div>
+
+                                                <div id="variant-details" class="variant-details" style="display: none;">
+                                                    <div class="variant-info">
+                                                        <div class="variant-price">
+                                                            {{ settings.currency }} <span id="variant-price"></span>
+                                                        </div>
+                                                        <div class="variant-stock">
+                                                            <span id="variant-stock" class="stock-badge"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                        </div>
                                     {% endif %}
 
                                     <p class="pp-descp">{{ product.description }}</p>
                                     <div class="product-group-dt">
                                         <ul>
-                                            <li>
-                                                <div class="main-price color-discount">
-                                                    Selling Price<span>{{ settings.currency }}{{ product.selling_price }}</span>
-                                                </div>
-                                            </li>
-                                            {% if product.discount_percentage > 0 %}
-                                            <li>
-                                                <div class="main-price mrp-price">
-                                                    Original Price<span>{{ settings.currency }}{{ product.original_price }}</span>
-                                                </div>
-                                                <div class="discount-tag">
-                                                    {{ product.discount_percentage }}% OFF
-                                                </div>
-                                            </li>
+                                            {% if product.has_variants %}
+                                                {% if product.variants.all|length > 0 %}
+                                                    <li>
+                                                        <div class="main-price color-discount">
+                                                            Selling Price<span> {{ settings.currency }}{{ product.variants.first.selling_price }} - {{ settings.currency }}{{ product.variants.last.selling_price }}</span>
+                                                        </div>
+                                                    </li>
+                                                {% endif %}
+                                            {% else %}
+                                                <li>
+                                                    <div class="main-price color-discount">
+                                                        Selling Price<span> {{ settings.currency }}{{ product.selling_price }}</span>
+                                                    </div>
+                                                </li>
+                                                {% if product.discount_percentage > 0 %}
+                                                    <li>
+                                                        <div class="main-price mrp-price">
+                                                            Original Price<span> {{ settings.currency }}{{ product.original_price }}</span>
+                                                        </div>
+                                                        <div class="discount-tag">
+                                                            {{ product.discount_percentage }}% OFF
+                                                        </div>
+                                                    </li>
+                                                {% endif %}
                                             {% endif %}
                                         </ul>
                                         <ul class="gty-wish-share">
@@ -267,19 +517,26 @@
                                                 </div>
                                             </li>
                                             <li>
-                                                <span class="like-icon {% if product.id in wishlist_product_ids %}liked{% endif %}" 
+                                                <span class="like-icon {% if product.is_wishlisted %}liked{% endif %}" 
                                                       title="wishlist" 
                                                       data-product="{{ product.id }}"></span>
                                             </li>
                                         </ul>
                                         <ul class="ordr-crt-share">
                                             <li>
-                                                <button class="add-cart-btn hover-btn" data-product="{{ product.id }}">
+                                                <button class="add-cart-btn hover-btn" 
+                                                        data-product="{{ product.id }}" 
+                                                        {% if product.has_variants %}disabled{% endif %}>
                                                     <i class="uil uil-shopping-cart-alt"></i>
                                                     Add to Cart
                                                 </button>
                                             </li>
-                                            <li><button class="order-btn hover-btn">Order Now</button></li>
+                                            <li>
+                                                <button class="order-btn hover-btn" 
+                                                        {% if product.has_variants %}disabled{% endif %}>
+                                                    Order Now
+                                                </button>
+                                            </li>
                                         </ul>
                                     </div>
                                     <div class="pdp-details">
@@ -457,6 +714,7 @@
 {% endblock %}
 
 {% block script %}
+    <script src="{% static 'frontend/js/product-variants.js' %}"></script>
     <script>
         $(document).ready(function() {
             $('.featured-slider').owlCarousel({

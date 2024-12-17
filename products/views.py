@@ -60,7 +60,14 @@ class FeaturedProductListView(ListView):
     paginate_by = 5
 
     def get_queryset(self):
-        return Product.objects.filter(is_active=True, top_featured=True)
+        queryset = Product.objects.filter(is_active=True, top_featured=True)
+        if self.request.user.is_authenticated:
+            queryset = queryset.annotate(
+                is_wishlisted=Exists(
+                    Wishlist.objects.filter(user=self.request.user, product=OuterRef("pk"))
+                )
+            )
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -77,6 +84,9 @@ class ProductDetailView(DetailView):
         obj = super().get_object(queryset)
         if obj is None:
             raise Http404("Product not found")
+        obj.is_wishlisted = Wishlist.objects.filter(
+            user=self.request.user, product=obj
+        ).exists() if self.request.user.is_authenticated else False
         return obj
 
     def get_context_data(self, **kwargs):
@@ -116,7 +126,14 @@ class ProductsByCategoryView(ListView):
 
     def get_queryset(self):
         if self.category:
-            return Product.objects.filter(category=self.category)
+            queryset = Product.objects.filter(category=self.category)
+            if self.request.user.is_authenticated:
+                queryset = queryset.annotate(
+                    is_wishlisted=Exists(
+                        Wishlist.objects.filter(user=self.request.user, product=OuterRef("pk"))
+                    )
+                )
+            return queryset
         return Product.objects.none()
 
     def get_context_data(self, **kwargs):

@@ -358,7 +358,9 @@ def admin_product_edit(request, product_id):
         product.sku = request.POST.get("sku")
         product.is_active = request.POST.get("is_active") == "on"
         product.slug = slugify(request.POST.get("name"))
-
+        product.has_variants = request.POST.get("has_variants") == "on"
+        product.is_free_shipping = request.POST.get("is_free_shipping") == "on"
+        
         # Handle primary image
         uploaded_primary_image = request.FILES.get("primary_image")
         if uploaded_primary_image:
