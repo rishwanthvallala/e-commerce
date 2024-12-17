@@ -16,12 +16,13 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from reportlab.platypus import Table, TableStyle
 from io import BytesIO
+from django.core.exceptions import ValidationError
 
 from categories.models import Category
 from core.models import CURRENCY_CHOICES
 from orders.models import Order, OrderItem
 from offers.models import Offer
-from products.models import Product, ProductImage
+from products.models import Product, ProductImage, ProductVariant
 from users.models import User
 from core.models import SiteSettings
 
@@ -755,3 +756,86 @@ def admin_reports(request):
         context["payment_stats"] = payment_stats
 
     return render(request, "users/admin/reports/index.html", context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def admin_product_variants(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    variants = product.variants.all()
+    
+    context = {
+        'product': product,
+        'variants': variants
+    }
+    return render(request, 'users/admin/products/variants/index.html', context)
+
+@login_required
+@user_passes_test(is_admin)
+def admin_product_variant_add(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    
+    if request.method == 'POST':
+        try:
+            variant = ProductVariant(
+                product=product,
+                size=request.POST.get('size'),
+                color=request.POST.get('color'),
+                sku=request.POST.get('sku'),
+                stock=request.POST.get('stock'),
+                stock_unit=request.POST.get('stock_unit'),
+                selling_price=request.POST.get('selling_price')
+            )
+            variant.full_clean()
+            variant.save()
+            messages.success(request, 'Variant added successfully')
+            return redirect('users:admin_product_variants', product_id=product.id)
+        except ValidationError as e:
+            messages.error(request, str(e))
+    
+    context = {
+        'product': product,
+        'stock_unit_choices': Product.StockUnitChoices.choices,
+        'variant_size_choices': ProductVariant.SizeChoices.choices
+    }
+    return render(request, 'users/admin/products/variants/add.html', context)
+
+@login_required
+@user_passes_test(is_admin)
+def admin_product_variant_edit(request, variant_id):
+    variant = get_object_or_404(ProductVariant, id=variant_id)
+    
+    if request.method == 'POST':
+        try:
+            variant.size = request.POST.get('size')
+            variant.color = request.POST.get('color')
+            variant.sku = request.POST.get('sku')
+            variant.stock = request.POST.get('stock')
+            variant.stock_unit = request.POST.get('stock_unit')
+            variant.selling_price = request.POST.get('selling_price')
+            variant.full_clean()
+            variant.save()
+            messages.success(request, 'Variant updated successfully')
+            return redirect('users:admin_product_variants', product_id=variant.product.id)
+        except ValidationError as e:
+            messages.error(request, str(e))
+    
+    context = {
+        'variant': variant,
+        'stock_unit_choices': Product.StockUnitChoices.choices,
+        'variant_size_choices': ProductVariant.SizeChoices.choices
+    }
+    return render(request, 'users/admin/products/variants/edit.html', context)
+
+@login_required
+@user_passes_test(is_admin)
+def admin_product_variant_delete(request, variant_id):
+    variant = get_object_or_404(ProductVariant, id=variant_id)
+    product_id = variant.product.id
+    
+    if request.method == 'POST':
+        variant.delete()
+        messages.success(request, 'Variant deleted successfully')
+        return redirect('users:admin_product_variants', product_id=product_id)
+    
+    return redirect('users:admin_product_variants', product_id=product_id)

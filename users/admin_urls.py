@@ -25,6 +25,10 @@ from users.views.admin_views import (
     admin_payment_settings,
     admin_email_settings,
     admin_reports,
+    admin_product_variants,
+    admin_product_variant_add,
+    admin_product_variant_edit,
+    admin_product_variant_delete,
 )
 
 urlpatterns = [
@@ -73,4 +77,8 @@ urlpatterns = [
     path('settings/payment/', admin_payment_settings, name='admin.settings.payment'),
     path('settings/email/', admin_email_settings, name='admin.settings.email'),
     path('reports/', admin_reports, name='admin.reports'),
+    path('products/<int:product_id>/variants/', admin_product_variants, name='admin_product_variants'),
+    path('products/<int:product_id>/variants/add/', admin_product_variant_add, name='admin_product_variant_add'),
+    path('products/variants/<int:variant_id>/edit/', admin_product_variant_edit, name='admin_product_variant_edit'),
+    path('products/variants/<int:variant_id>/delete/', admin_product_variant_delete, name='admin_product_variant_delete'),
 ]

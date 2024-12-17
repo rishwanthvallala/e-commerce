@@ -1,5 +1,5 @@
 from django.db import models
-from products.models import Product
+from products.models import Product, ProductVariant
 from decimal import Decimal
 from django.core.exceptions import ValidationError
 from django_extensions.db.models import TimeStampedModel
@@ -23,8 +23,14 @@ class Cart(TimeStampedModel):
 
 
 class CartItem(TimeStampedModel):
-    cart = models.ForeignKey(Cart, related_name="items", on_delete=models.CASCADE)
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="items")
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    variant = models.ForeignKey(
+        ProductVariant, 
+        on_delete=models.CASCADE, 
+        null=True, 
+        blank=True
+    )
     quantity = models.PositiveIntegerField(default=1)
 
     class Meta:
@@ -32,12 +38,10 @@ class CartItem(TimeStampedModel):
         verbose_name_plural = "Cart Items"
 
     @property
-    def unit_price(self):
-        return self.product.selling_price
-
-    @property
     def subtotal(self):
-        return Decimal(self.quantity) * self.unit_price
+        if self.variant:
+            return self.variant.selling_price * self.quantity
+        return self.product.selling_price * self.quantity
 
     def clean(self):
         if self.quantity > self.product.stock:

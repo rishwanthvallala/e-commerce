@@ -1,11 +1,12 @@
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.views.generic import ListView, DetailView
 from django.db.models import Exists, OuterRef, Value
 from django.db import models
+from django.views.decorators.http import require_GET
 
 from categories.models import Category
 from wishlist.models import Wishlist
-from .models import Product
+from .models import Product, ProductVariant
 
 
 class ProductListView(ListView):
@@ -122,3 +123,25 @@ class ProductsByCategoryView(ListView):
         context = super().get_context_data(**kwargs)
         context["title"] = f"List of {self.category.name} Products"
         return context
+
+
+@require_GET
+def get_variant_details(request):
+    product_id = request.GET.get('product_id')
+    size = request.GET.get('size')
+    color = request.GET.get('color')
+    
+    try:
+        variant = ProductVariant.objects.get(
+            product_id=product_id,
+            size=size,
+            color=color
+        )
+        return JsonResponse({
+            'id': variant.id,
+            'sku': variant.sku,
+            'selling_price': float(variant.selling_price),
+            'stock': variant.stock
+        })
+    except ProductVariant.DoesNotExist:
+        return JsonResponse({'error': 'Variant not found'}, status=404)

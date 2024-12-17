@@ -187,17 +187,53 @@
                                     </div>
 
                                     {% if product.has_variants %}
-                                    <div class="product-variants">
-                                        {% for variant in product.variants.all %}
-                                        <div class="variant-item">
-                                            <input type="radio" id="v{{ variant.id }}" name="variant">
-                                            <label for="v{{ variant.id }}">
-                                                {% if variant.size %}Size: {{ variant.size }}{% endif %}
-                                                {% if variant.color %}Color: {{ variant.color }}{% endif %}
-                                                - ${{ variant.selling_price }}
-                                            </label>
-                                        </div>
-                                        {% endfor %}
+                                    <div class="product-variants mb-4">
+                                        {% if product.variants.all|length > 0 %}
+                                            <div class="variant-options">
+                                                {% if product.variants.first.size %}
+                                                    <div class="size-selector mb-3">
+                                                        <label>Size:</label>
+                                                        <select class="form-control variant-select" data-type="size">
+                                                            <option value="">Select Size</option>
+                                                            {% for variant in product.variants.all|dictsort:"size" %}
+                                                                {% if variant.size %}
+                                                                    <option value="{{ variant.size }}" 
+                                                                            data-price="{{ variant.selling_price }}"
+                                                                            data-stock="{{ variant.stock }}">
+                                                                        {{ variant.size }}
+                                                                    </option>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                {% endif %}
+
+                                                {% if product.variants.first.color %}
+                                                    <div class="color-selector mb-3">
+                                                        <label>Color:</label>
+                                                        <select class="form-control variant-select" data-type="color">
+                                                            <option value="">Select Color</option>
+                                                            {% for variant in product.variants.all|dictsort:"color" %}
+                                                                {% if variant.color %}
+                                                                    <option value="{{ variant.color }}"
+                                                                            data-price="{{ variant.selling_price }}"
+                                                                            data-stock="{{ variant.stock }}">
+                                                                        {{ variant.color }}
+                                                                    </option>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+
+                                            <div class="variant-price mt-2">
+                                                Price: <span id="variant-price">{{ product.selling_price }}</span>
+                                            </div>
+                                            <div class="variant-stock mt-2">
+                                                Stock: <span id="variant-stock">{{ product.stock }}</span>
+                                            </div>
+                                        {% endif %}
                                     </div>
                                     {% endif %}
 

@@ -20,7 +20,7 @@ from django.views.decorators.http import require_POST
 from djstripe.models import APIKey
 import json
 import logging
-from products.models import Product
+from products.models import Product, ProductVariant
 from orders.models import Order, OrderItem
 from users.models import Address
 
@@ -54,47 +54,70 @@ class CartListAPIView(ListAPIView):
 @permission_classes([IsAuthenticated])
 def add_to_cart(request):
     product_id = request.data.get("product_id")
+    variant_id = request.data.get("variant_id")
     quantity = int(request.data.get("quantity", 1))
 
     if not product_id:
         return Response(
-            {"error": "Product ID is required"}, status=status.HTTP_400_BAD_REQUEST
+            {"error": "Product ID is required"}, 
+            status=status.HTTP_400_BAD_REQUEST
         )
 
     product = get_object_or_404(Product, id=product_id)
-
-    # Validate stock
-    if quantity > product.stock:
+    
+    # Get variant if provided
+    variant = None
+    if variant_id:
+        variant = get_object_or_404(ProductVariant, id=variant_id)
+        if variant.product_id != product.id:
+            return Response(
+                {"error": "Invalid variant for this product"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Check variant stock
+        if quantity > variant.stock:
+            return Response(
+                {"error": f"Only {variant.stock} items available in stock"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    elif product.has_variants:
         return Response(
-            {"error": f"Only {product.stock} items available in stock"},
-            status=status.HTTP_400_BAD_REQUEST,
+            {"error": "Please select product variant"}, 
+            status=status.HTTP_400_BAD_REQUEST
         )
+    else:
+        # Check product stock for non-variant products
+        if quantity > product.stock:
+            return Response(
+                {"error": f"Only {product.stock} items available in stock"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-    # Get or create cart for user
+    # Get or create cart
     cart, _ = Cart.objects.get_or_create(user=request.user)
 
-    # Check if item already exists in cart
+    # Check if item already exists
     try:
-        cart_item = CartItem.objects.get(cart=cart, product=product)
-        # Validate total quantity
-        if cart_item.quantity + quantity > product.stock:
-            return Response(
-                {
-                    "error": f"Cannot add {quantity} more items. Only {product.stock - cart_item.quantity} more available"
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        cart_item = CartItem.objects.get(
+            cart=cart, 
+            product=product,
+            variant=variant
+        )
         cart_item.quantity += quantity
         cart_item.save()
     except CartItem.DoesNotExist:
         cart_item = CartItem.objects.create(
-            cart=cart, product=product, quantity=quantity
+            cart=cart,
+            product=product,
+            variant=variant,
+            quantity=quantity
         )
 
-    return Response(
-        {"message": "Item added to cart", "cart_total": cart.total_items},
-        status=status.HTTP_200_OK,
-    )
+    return Response({
+        "message": "Item added to cart",
+        "cart_total": cart.total_items
+    })
 
 
 @api_view(["POST"])

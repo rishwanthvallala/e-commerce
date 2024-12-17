@@ -1,0 +1,85 @@
+{% extends 'users/admin/base.html' %}
+
+{% block content %}
+<main>
+    <div class="container-fluid">
+        <h2 class="mt-30 page-title">Edit Variant</h2>
+        <ol class="breadcrumb mb-30">
+            <li class="breadcrumb-item"><a href="{% url 'users:admin.index' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'users:admin_products' %}">Products</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'users:admin_product_variants' variant.product.id %}">Variants</a></li>
+            <li class="breadcrumb-item active">Edit Variant</li>
+        </ol>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card card-static-2 mb-30">
+                    <div class="card-title-2">
+                        <h4>Edit Variant for {{ variant.product.name }}</h4>
+                    </div>
+                    <div class="card-body-table ml-3 mr-3">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label class="form-label">Size</label>
+                                        <select class="form-control" name="size">
+                                            <option value="">Select Size</option>
+                                            {% for size_value, size_label in variant_size_choices %}
+                                                <option value="{{ size_value }}" {% if variant.size == size_value %}selected{% endif %}>
+                                                    {{ size_label }} ({{ size_value }})
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label class="form-label">Color</label>
+                                        <input type="text" class="form-control" name="color" value="{{ variant.color|default:'' }}" placeholder="e.g., Red, Blue, Green">
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label class="form-label">SKU*</label>
+                                        <input type="text" class="form-control" name="sku" value="{{ variant.sku }}" required>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label class="form-label">Stock*</label>
+                                        <input type="number" class="form-control" name="stock" value="{{ variant.stock }}" required min="0">
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label class="form-label">Stock Unit*</label>
+                                        <select class="form-control" name="stock_unit" required>
+                                            {% for value, label in stock_unit_choices %}
+                                                <option value="{{ value }}" {% if variant.stock_unit == value %}selected{% endif %}>
+                                                    {{ label }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label class="form-label">Selling Price*</label>
+                                        <input type="number" class="form-control" name="selling_price" value="{{ variant.selling_price }}" required step="0.01" min="0">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="save-btn hover-btn">Update Variant</button>
+                                <a href="{% url 'users:admin_product_variants' variant.product.id %}">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %} 

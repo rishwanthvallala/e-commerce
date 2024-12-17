@@ -156,12 +156,21 @@ class ProductImage(TimeStampedModel):
 
 
 class ProductVariant(TimeStampedModel):
+    class SizeChoices(models.TextChoices):
+        EXTRA_SMALL = "XS", _("Extra Small")
+        SMALL = "S", _("Small")
+        MEDIUM = "M", _("Medium")
+        LARGE = "L", _("Large")
+        EXTRA_LARGE = "XL", _("Extra Large")
+        DOUBLE_EXTRA_LARGE = "XXL", _("Double Extra Large")
+        TRIPLE_EXTRA_LARGE = "XXXL", _("Triple Extra Large")
+
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE, related_name="variants"
     )
-
-    # Variant specific fields
-    size = models.CharField(max_length=50, blank=True, null=True)
+    size = models.CharField(
+        max_length=10, choices=SizeChoices.choices, blank=True, null=True
+    )
     color = models.CharField(max_length=50, blank=True, null=True)
 
     # Each variant has its own stock and price
