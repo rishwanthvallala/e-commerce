@@ -516,16 +516,16 @@ def generate_order_pdf(request, order_id):
         data.append(
             [
                 item.product.name,
-                f"৳{item.price}",
+                f"₹{item.price}",
                 str(item.quantity),
-                f"৳{item.subtotal}",
+                f"₹{item.subtotal}",
             ]
         )
 
     # Add totals
-    data.append(["", "", "Subtotal:", f"৳{order.total_amount}"])
-    data.append(["", "", "Delivery:", f"৳{order.delivery_charge or 0}"])
-    data.append(["", "", "Grand Total:", f"৳{order.grand_total}"])
+    data.append(["", "", "Subtotal:", f"₹{order.total_amount}"])
+    data.append(["", "", "Delivery:", f"₹{order.delivery_charge or 0}"])
+    data.append(["", "", "Grand Total:", f"₹{order.grand_total}"])
 
     table = Table(data, colWidths=[250, 100, 100, 100])
     table.setStyle(

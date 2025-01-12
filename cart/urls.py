@@ -11,4 +11,6 @@ urlpatterns = [
     path('api/place-order/', views.place_order, name='place_order'),
     path('create-payment-intent/', views.PaymentIntentView.as_view(), name='create_payment_intent'),
     path('confirm-payment/', views.PaymentConfirmView.as_view(), name='confirm_payment'),
+    path('create-razorpay-order/', views.create_razorpay_order, name='create_razorpay_order'),
+    path('verify-razorpay-payment/', views.verify_razorpay_payment, name='verify_razorpay_payment'),
 ]

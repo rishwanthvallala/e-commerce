@@ -28,6 +28,24 @@ def index(request):
     }
     return render(request, "index.html", context)
 
+def search_view(request):
+    if request.method == "POST":
+        query = request.POST.get("query", "").strip()  # Get the search query from the form
+        if query:
+            # Perform a search on the relevant models (e.g., Product)
+            results = Product.objects.filter(name__icontains=query)  # Adjust as needed
+        else:
+            results = []
+
+        # Render the search results
+        return render(request, 'search.html', {
+            'query': query,
+            'products': results,
+        })
+    else:
+        # Redirect to home or an error page if accessed via GET
+        return render(request, 'search.html')
+
 
 class AboutView(TemplateView):
     template_name = "core/about.html"
@@ -51,3 +69,7 @@ class FAQView(TemplateView):
 
 class RefundView(TemplateView):
     template_name = "core/refund.html"
+
+def hello(request):
+    # return string hello
+    return render(request, 'hello.html')

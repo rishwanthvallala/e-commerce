@@ -19,8 +19,12 @@
                     <i class="uil uil-check-circle"></i> In Stock
                 {% endif %}
             </div>
-            
-            <h4 class="product-title">{{ product.name }}</h4>
+                <h4 class="product-title">
+                    <a 
+                    style="color: #2b2f4c;"
+                    href="{% url 'products:detail' product.slug %}">
+                    {{ product.name }}</a>
+                </h4>
             
             <div class="product-price">
                 <div class="current-price">{{ settings.currency }}{{ product.selling_price }}</div>

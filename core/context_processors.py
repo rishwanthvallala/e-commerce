@@ -3,4 +3,8 @@ from core.models import SiteSettings
 
 
 def common_data(request):
-    return {"categories": Category.objects.all()[:5], "settings": SiteSettings.load()}
+    categories = Category.objects.all().order_by("name").reverse()
+    return {
+        "categories": categories,
+        "settings": SiteSettings.load()
+    }

@@ -6,10 +6,10 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<title>WOWY Admin</title>
+	<title> ANB | ADMIN {% block title %}  {% endblock %} </title>
     <!-- Favicon -->
-    <link rel="shortcut icon" href="{% static 'frontend/images/fav.png' %}" type="image/x-icon">
-    <link rel="icon" href="{% static 'frontend/images/fav.png' %}" type="image/x-icon">
+    <link rel="shortcut icon" href="{% static 'frontend/images/fav.webp' %}" type="image/x-icon">
+    <link rel="icon" href="{% static 'frontend/images/fav.webp' %}" type="image/x-icon">
 	<link href="{% static 'frontend/admin/css/styles.css' %}" rel="stylesheet">
 	<link href="{% static 'frontend/admin/css/admin-style.css' %}" rel="stylesheet">
 	
@@ -20,8 +20,8 @@
 </head>
 
     <body class="sb-nav-fixed">
-        <nav class="sb-topnav navbar navbar-expand navbar-light bg-clr">
-            <a class="navbar-brand logo-brand" href="{% url 'core:home' %}" target="_blank">WOWY</a>
+        <nav class="sb-topnav navbar navbar-expand navbar-light bg-clr"> 
+            <a class="navbar-brand logo-brand" href="{% url 'core:home' %}" target="_blank">ANB</a>
 			<button class="btn btn-link btn-sm order-1 order-lg-0" id="sidebarToggle" href="#">
                 <i class="fas fa-bars"></i>
             </button>

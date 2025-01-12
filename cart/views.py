@@ -33,6 +33,11 @@ from django.views import View
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 
+import razorpay
+from django.conf import settings
+from django.shortcuts import render
+from django.http import JsonResponse
+from gambo.settings import RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET
 
 logger = logging.getLogger(__name__)
 
@@ -323,7 +328,7 @@ class PaymentIntentView(View, StripeMixin):
             # Create PaymentIntent
             intent = stripe.PaymentIntent.create(
                 amount=amount,
-                currency="bdt",
+                currency="rs",
                 payment_method=payment_method_id,
                 confirmation_method="manual",
                 confirm=True,
@@ -424,3 +429,53 @@ class PaymentConfirmView(View, StripeMixin):
                 return JsonResponse({"error": "Payment failed"}, status=400)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
+    
+client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+
+def create_razorpay_order(request):
+    try:
+        data = json.loads(request.body)
+        amount = int(data.get("amount") * 100)  # Convert to paisa
+        currency = data.get("currency", "INR")
+        receipt = data.get("receipt", f"ORD-{timezone.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}")
+        notes = data.get("notes", {})
+
+        order = client.order.create({
+            "amount": amount,
+            "currency": currency,
+            "receipt": receipt,
+            "notes": notes
+        })
+
+        return JsonResponse(order)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+def verify_razorpay_payment(request):
+    try:
+        data = json.loads(request.body)
+        order_id = data.get("order_id")
+        payment_id = data.get("payment_id")
+        signature = data.get("signature")
+
+        # Verify the signature
+        client.utility.verify_payment_signature({
+            "razorpay_order_id": order_id,
+            "razorpay_payment_id": payment_id,
+            "razorpay_signature": signature
+        })
+
+        # Create order in your system
+        order = Order.objects.create(
+            user=request.user,
+            payment_method='razorpay',
+            payment_id=data['payment_id'],
+            # Add other necessary fields
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'redirect_url': reverse('orders:order_success', args=[order.id])
+        })
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)

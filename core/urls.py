@@ -8,12 +8,14 @@ app_name = 'core'
 
 urlpatterns = [
     path('', views.index, name='home'),
+    path('search/', views.search_view, name='search'),
     path('about/', views.AboutView.as_view(), name='about'),
     path('contact/', views.ContactView.as_view(), name='contact'),
     path('terms/', views.TermsView.as_view(), name='terms'),
     path('privacy/', views.PrivacyView.as_view(), name='privacy'),
     path('faq/', views.FAQView.as_view(), name='faq'),
     path('refund/', views.RefundView.as_view(), name='refund'),
+    path('hello/', views.hello, name='hello'),
 ]
 
 if settings.DEBUG:

@@ -1,33 +1,16 @@
+{% load static %}
+
 <header class="header clearfix">
     <div class="top-header-group">
         <div class="top-header">
             <div class="res_main_logo">
-                <a href="/"><img src="" alt=""></a>
+                <a href="{% url 'core:home' %}"><img src="{% static 'frontend/images/left-top-logo.png' %}" alt=""></a>
             </div>
             <div class="main_logo" id="logo">
-                <a href="/"><img src="" alt=""></a>
-                <a href="/"><img class="logo-inverse" src="" alt=""></a>
+                <a href="{% url 'core:home' %}"><img src="{% static 'frontend/images/left-top-logo.png' %}" alt=""></a>
             </div>
-            <div class="select_location">
-                <div class="ui inline dropdown loc-title">
-                    <div class="text">
-                        <i class="uil uil-location-point"></i>
-                        Location
-                    </div>
-                    <i class="uil uil-angle-down icon__14"></i>
-                    <div class="menu dropdown_loc">
-                        <a href="" class="item channel_item">
-                            <i class="uil uil-location-point"></i>
-                            Dhaka
-                        </a>
-                        <a href="" class="item channel_item">
-                            <i class="uil uil-location-point"></i>
-                            Chittagong
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <form action="" method="post">
+            <form action="{% url 'core:search' %}" method="post">
+                {% csrf_token %}
                 <input type="hidden" name="query" value="" id="query">
                 <button class="display-none" type="submit" id="search-btn"></button>
             </form>
@@ -40,12 +23,13 @@
                     </div>
                 </div>
             </div>
+            
             <div class="header_right">
                 <ul>
                     <li>
                         <a href="tel:" class="offer-link">
                             <i class="uil uil-phone-alt"></i>
-                            34343434
+                            +91 88255 49397
                         </a>
                     </li>
                     <li>
@@ -154,7 +138,10 @@
                                 <a href="{% url 'products:featured' %}" class="nav-link" title="Featured Products"> Featured Products </a>
                             </li>
                             <li class="nav-item">
-                                <a href="" class="nav-link" title="Contact">Contact Us </a>
+                                <a href="{% url 'core:about' %}" class="nav-link" title="About"> About Us </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{% url 'core:contact' %}" class="nav-link" title="Contact">Contact Us </a>
                             </li>
                         </ul>
                     </div>

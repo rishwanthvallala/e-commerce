@@ -2,13 +2,13 @@ from django.db import models
 from django.utils import timezone
 
 CURRENCY_CHOICES = [
-    ("BDT", "Bangladeshi Taka"),
+    ("INR", "Indian Rupee"),
 ]
 
 
 class SiteSettings(models.Model):
     # General Settings
-    site_name = models.CharField(max_length=100, default="WOWY")
+    site_name = models.CharField(max_length=100, default="ANB")
     site_logo = models.ImageField(upload_to="site/", null=True, blank=True)
     favicon = models.ImageField(upload_to="site/", null=True, blank=True)
     contact_email = models.EmailField(null=True, blank=True)
@@ -18,7 +18,7 @@ class SiteSettings(models.Model):
     # Payment Settings
     paypal_client_id = models.CharField(max_length=255, null=True, blank=True)
     paypal_secret = models.CharField(max_length=255, null=True, blank=True)
-    currency = models.CharField(max_length=3, default="BDT", choices=CURRENCY_CHOICES)
+    currency = models.CharField(max_length=3, default="INR", choices=CURRENCY_CHOICES)
 
     # Email Settings
     smtp_host = models.CharField(max_length=255, null=True, blank=True)

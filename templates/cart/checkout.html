@@ -140,21 +140,28 @@
                                                    value="cash_on_delivery" class="custom-control-input" checked>
                                             <label class="custom-control-label" for="cashOnDelivery">Cash on Delivery</label>
                                         </div>
-                                        <div class="custom-control custom-radio mb-3">
+                                        <!-- <div class="custom-control custom-radio mb-3">
                                             <input type="radio" id="stripePayment" name="payment_method" 
                                                    value="stripe" class="custom-control-input">
                                             <label class="custom-control-label" for="stripePayment">Credit Card (Stripe)</label>
                                         </div>
                                         
-                                        <!-- Stripe Card Element -->
+                                        Stripe Card Element
                                         <div id="stripe-payment-form" style="display: none;" class="mt-3">
                                             <div class="form-group">
                                                 <label>Card Details</label>
                                                 <div id="card-element" class="form-control">
-                                                    <!-- Stripe Card Element will be inserted here -->
+                                                    Stripe Card Element will be inserted here
                                                 </div>
                                                 <div id="card-errors" class="text-danger mt-2"></div>
                                             </div>
+                                        </div> -->
+
+                                        <!-- Razorpay Payment Gateway -->
+                                        <div class="custom-control custom-radio mb-3">
+                                            <input type="radio" id="razorpayPayment" name="payment_method" 
+                                                value="razorpay" class="custom-control-input">
+                                            <label class="custom-control-label" for="razorpayPayment">Pay Online (Cards, UPI, NetBanking)</label>
                                         </div>
                                     </div>
                                 </div>
@@ -297,13 +304,15 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script src="https://js.stripe.com/v3/"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 <script>
 const stripe = Stripe('{{ stripe_publishable_key }}');
 const elements = stripe.elements();
 const card = elements.create('card');
 
 // Mount the card element
-card.mount('#card-element');
+//card.mount('#card-element');
 
 // Handle real-time validation errors
 card.addEventListener('change', function(event) {
@@ -324,96 +333,198 @@ document.querySelectorAll('input[name="payment_method"]').forEach(input => {
 });
 
 // Handle form submission
-document.getElementById('placeOrderBtn').addEventListener('click', async function(e) {
-    e.preventDefault();
-
-    const selectedAddress = document.querySelector('input[name="shipping_address"]:checked');
-    if (!selectedAddress) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Please select a delivery address'
-        });
-        return;
-    }
-
-    const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
-    
-    if (paymentMethod === 'stripe') {
-        // Create payment method
-        const {paymentMethod, error} = await stripe.createPaymentMethod({
-            type: 'card',
-            card: card,
-        });
-
-        if (error) {
-            const errorElement = document.getElementById('card-errors');
-            errorElement.textContent = error.message;
-            return;
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Document loaded');
+    // Initialize Razorpay options
+    const options = {
+        "key": "{{ razorpay_key }}", // Replace with your actual key
+        "amount": "{{ cart.total_price }}00", // Amount is in currency subunits. Default currency is INR
+        "currency": "INR",
+        "name": "Your Store Name",
+        "description": "Order Payment",
+        "image": "{% static 'your-logo.png' %}", // Your store logo
+        "handler": function (response) {
+            // Handle successful payment
+            verifyPayment(response.razorpay_payment_id, response.razorpay_order_id, response.razorpay_signature);
+        },
+        "prefill": {
+            "name": "{{ request.user.name }}",
+            "email": "{{ request.user.email }}",
+            "contact": document.querySelector('[name="phone"]')?.value || ""
+        },
+        "theme": {
+            "color": "#3399cc"
         }
+    };
 
-        // Send to server
-        const response = await fetch('{% url "cart:create_payment_intent" %}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({
-                payment_method_id: paymentMethod.id,
-                shipping_address: selectedAddress.value
-            })
-        });
+    // Initialize Razorpay instance
+    const rzp = new Razorpay(options);
+    console.log('Document loaded');
+    document.getElementById('placeOrderBtn').addEventListener('click', async function(e) {
+        console.log('Place order button clicked');
+        e.preventDefault();
 
-        const data = await response.json();
-
-        if (data.requires_action) {
-            // Handle 3D Secure authentication
-            const { error } = await stripe.handleCardAction(data.client_secret);
-            
-            if (error) {
-                const errorElement = document.getElementById('card-errors');
-                errorElement.textContent = error.message;
-            } else {
-                // Confirm payment after 3D Secure
-                confirmPayment(data.payment_intent_id);
-            }
-        } else if (data.success) {
-            window.location.href = data.redirect_url;
-        } else {
+        const selectedAddress = document.querySelector('input[name="shipping_address"]:checked');
+        if (!selectedAddress) {
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: data.error
+                text: 'Please select a delivery address'
             });
+            return;
         }
-    } else {
-        // Handle cash on delivery
-        const formData = {
-            shipping_address: selectedAddress.value,
-            payment_method: 'cash_on_delivery'
-        };
 
-        fetch('{% url "cart:place_order" %}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify(formData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
+        const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+        
+        if (paymentMethod === 'stripe') {
+            // Create payment method
+            const {paymentMethod, error} = await stripe.createPaymentMethod({
+                type: 'card',
+                card: card,
+            });
+
+            if (error) {
+                const errorElement = document.getElementById('card-errors');
+                errorElement.textContent = error.message;
+                return;
+            }
+
+            // Send to server
+            const response = await fetch('{% url "cart:create_payment_intent" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    payment_method_id: paymentMethod.id,
+                    shipping_address: selectedAddress.value
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.requires_action) {
+                // Handle 3D Secure authentication
+                const { error } = await stripe.handleCardAction(data.client_secret);
+                
+                if (error) {
+                    const errorElement = document.getElementById('card-errors');
+                    errorElement.textContent = error.message;
+                } else {
+                    // Confirm payment after 3D Secure
+                    confirmPayment(data.payment_intent_id);
+                }
+            } else if (data.success) {
+                window.location.href = data.redirect_url;
+            } else {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
                     text: data.error
                 });
-            } else {
-                window.location.href = data.redirect_url;
             }
-        });
+        }
+        else if (paymentMethod === 'razorpay') {
+            try {
+                // Create Razorpay order on server
+                const orderResponse = await fetch('{% url "cart:create_razorpay_order" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        shipping_address: selectedAddress.value
+                    })
+                });
+                
+                const orderData = await orderResponse.json();
+                if (orderData.error) {
+                    throw new Error(orderData.error);
+                }
+                
+                // Update Razorpay options with order ID
+                rzp.options.order_id = orderData.order_id;
+                rzp.options.amount = orderData.amount; // Update amount if needed
+                
+                // Open Razorpay checkout
+                rzp.open();
+                
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'Something went wrong!'
+                });
+            }
+        }
+        else {
+            // Handle cash on delivery
+            const formData = {
+                shipping_address: selectedAddress.value,
+                payment_method: 'cash_on_delivery'
+            };
+
+            try {
+                const response = await fetch('{% url "cart:place_order" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                if (data.error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.error
+                    });
+                } else {
+                    window.location.href = data.redirect_url;
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Something went wrong!'
+                });
+            }
+        }
+    });
+
+    // Function to verify Razorpay payment
+    async function verifyPayment(paymentId, orderId, signature) {
+        try {
+            const response = await fetch('{% url "cart:verify_razorpay_payment" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    payment_id: paymentId,
+                    order_id: orderId,
+                    signature: signature
+                })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                window.location.href = data.redirect_url;
+            } else {
+                throw new Error(data.error);
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Payment Verification Failed',
+                text: error.message || 'Something went wrong!'
+            });
+        }
     }
 });
 
