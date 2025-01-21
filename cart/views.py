@@ -24,7 +24,7 @@ from products.models import Product, ProductVariant
 from orders.models import Order, OrderItem
 from users.models import Address
 
-from core.mixins import StripeMixin
+from core.mixins import StripeMixin, RazorpayMixin
 
 from .models import Cart, CartItem
 from .serializers import CartSerializer
@@ -174,7 +174,7 @@ def update_cart_item(request):
     )
 
 
-class CheckoutView(LoginRequiredMixin, TemplateView, StripeMixin):
+class CheckoutView(LoginRequiredMixin, TemplateView, StripeMixin, RazorpayMixin):
     template_name = "cart/checkout.html"
 
     def get_context_data(self, **kwargs):
@@ -182,7 +182,9 @@ class CheckoutView(LoginRequiredMixin, TemplateView, StripeMixin):
         try:
             # Setup Stripe and get publishable key
             stripe_context = self.get_stripe_context()
+            razorpay_context = self.get_razorpay_context()
             context.update(stripe_context)
+            context.update(razorpay_context)
 
             cart = Cart.objects.prefetch_related("items__product").get(
                 user=self.request.user
@@ -211,6 +213,10 @@ class CheckoutView(LoginRequiredMixin, TemplateView, StripeMixin):
         except APIKey.DoesNotExist:
             messages.error(self.request, "Stripe API keys not configured properly")
             context["cart"] = None
+        except Exception as e:
+            traceback.print_exc()
+            messages.error(self.request, str(e))
+            context["cart"] = None
 
         return context
 
@@ -229,6 +235,7 @@ def generate_order_number():
 @permission_classes([IsAuthenticated])
 def place_order(request):
     """Handle order placement"""
+    print("Place order")
     try:
         cart = request.user.cart
         if not cart.items.exists():
@@ -433,10 +440,13 @@ class PaymentConfirmView(View, StripeMixin):
 client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 
 def create_razorpay_order(request):
+    print("Create order")
     try:
         data = json.loads(request.body)
-        amount = int(data.get("amount") * 100)  # Convert to paisa
-        currency = data.get("currency", "INR")
+        options = data.get("options", {})
+        print(options)
+        amount = int(float(options.get("amount", 0))) * 100
+        currency = options.get("currency", "INR")
         receipt = data.get("receipt", f"ORD-{timezone.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}")
         notes = data.get("notes", {})
 
@@ -446,9 +456,10 @@ def create_razorpay_order(request):
             "receipt": receipt,
             "notes": notes
         })
-
+        print (order)
         return JsonResponse(order)
     except Exception as e:
+        print("Error", e)
         return JsonResponse({"error": str(e)}, status=400)
 
 def verify_razorpay_payment(request):

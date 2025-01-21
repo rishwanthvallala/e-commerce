@@ -334,10 +334,9 @@ document.querySelectorAll('input[name="payment_method"]').forEach(input => {
 
 // Handle form submission
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Document loaded');
     // Initialize Razorpay options
     const options = {
-        "key": "{{ razorpay_key }}", // Replace with your actual key
+        "key": "{{ razorpay_key_id }}", // Replace with your actual key
         "amount": "{{ cart.total_price }}00", // Amount is in currency subunits. Default currency is INR
         "currency": "INR",
         "name": "Your Store Name",
@@ -356,10 +355,6 @@ document.addEventListener('DOMContentLoaded', function() {
             "color": "#3399cc"
         }
     };
-
-    // Initialize Razorpay instance
-    const rzp = new Razorpay(options);
-    console.log('Document loaded');
     document.getElementById('placeOrderBtn').addEventListener('click', async function(e) {
         console.log('Place order button clicked');
         e.preventDefault();
@@ -426,6 +421,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         else if (paymentMethod === 'razorpay') {
+            console.log('Razorpay payment method selected');
             try {
                 // Create Razorpay order on server
                 const orderResponse = await fetch('{% url "cart:create_razorpay_order" %}', {
@@ -435,20 +431,21 @@ document.addEventListener('DOMContentLoaded', function() {
                         'X-CSRFToken': getCookie('csrftoken')
                     },
                     body: JSON.stringify({
-                        shipping_address: selectedAddress.value
+                        shipping_address: selectedAddress.value,
+                        'options': options
                     })
                 });
-                
+                console.log(orderResponse + "orderResponse");
                 const orderData = await orderResponse.json();
                 if (orderData.error) {
                     throw new Error(orderData.error);
                 }
-                
+                console.log(orderData + "orderData");
                 // Update Razorpay options with order ID
-                rzp.options.order_id = orderData.order_id;
-                rzp.options.amount = orderData.amount; // Update amount if needed
-                
+                options.order_id = orderData.id;
+                options.amount = orderData.amount; // Update amount if needed
                 // Open Razorpay checkout
+                const rzp = new Razorpay(options);
                 rzp.open();
                 
             } catch (error) {
@@ -554,14 +551,14 @@ async function confirmPayment(paymentIntentId) {
 }
 </script>
 <script>
-document.getElementById('same_as_shipping').addEventListener('change', function() {
-    const billingSection = document.getElementById('billing_address_section');
-    billingSection.style.display = this.checked ? 'none' : 'block';
+// document.getElementById('same_as_shipping').addEventListener('change', function() {
+//     const billingSection = document.getElementById('billing_address_section');
+//     billingSection.style.display = this.checked ? 'none' : 'block';
     
-    // Clear billing address selection when using shipping address
-    if (this.checked) {
-        document.querySelector('select[name="billing_address"]').value = '';
-    }
-});
+//     // Clear billing address selection when using shipping address
+//     if (this.checked) {
+//         document.querySelector('select[name="billing_address"]').value = '';
+//     }
+// });
 </script>
 {% endblock %} 

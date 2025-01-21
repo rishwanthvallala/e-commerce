@@ -7,7 +7,7 @@ SECRET_KEY = "django-insecure-b9v7(o#50=rn3iyoloxqx4!wjq#v&a_eulwy@9a%k3hf=pmy+g
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['rishwonth.pythonanywhere.com']
+ALLOWED_HOSTS = ['rishwonth.pythonanywhere.com', '127.0.0.1']
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -37,6 +37,10 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "users.middleware.WishlistCountMiddleware",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://r.stripe.com/b',
 ]
 
 ROOT_URLCONF = "gambo.urls"
